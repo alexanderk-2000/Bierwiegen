@@ -13,6 +13,8 @@
     "git:autopush": "bash scripts/git-auto-sync.sh"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.10.3",
+    "@supabase/supabase-js": "^2.105.3",
     "clsx": "^2.1.1",
     "lucide-react": "^0.468.0",
     "next": "^15.0.0",
