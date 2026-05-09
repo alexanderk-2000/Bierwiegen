@@ -1377,11 +1377,28 @@ export default function BierwiegenApp() {
   };
 
   const resetGame = () => {
-    if (!window.confirm("Spiel wirklich zurücksetzen?")) return;
+    setShowResetModal(true);
+  };
+
+  const doReset = () => {
     setUndoStack([]);
     localStorage.removeItem(STORAGE_KEY);
     setGame(emptyGame());
     setScreen("home");
+    setShowResetModal(false);
+  };
+
+  const endLocalGame = () => {
+    updateGame("Spiel beendet", (g) => ({
+      ...g,
+      status: "ended",
+      activeRoundId: undefined,
+    }));
+    setScreen("final");
+    sound("win");
+    buzz([100, 50, 100, 50, 200]);
+    setConfettiKey((k) => k + 1);
+    setShowEndGameModal(false);
   };
 
   // Auto-Trigger: Wenn alle Messungen einer Runde da sind, Auswertung anbieten
@@ -1437,6 +1454,7 @@ export default function BierwiegenApp() {
             onUndo={undo}
             undoLabel={undoStack.at(-1)?.label}
             onReset={resetGame}
+            onEndGame={() => setShowEndGameModal(true)}
             onGoHome={() => setScreen("home")}
             onOpenSettings={() => setShowSettings(true)}
             theme={settings.theme}
@@ -1682,6 +1700,24 @@ export default function BierwiegenApp() {
           onClose={() => setShowSettings(false)}
         />
       )}
+
+      <ConfirmModal
+        open={showEndGameModal}
+        title="Spiel beenden?"
+        description="Der aktuelle Punktestand wird als Ergebnis gewertet."
+        confirmLabel="Beenden"
+        onConfirm={endLocalGame}
+        onCancel={() => setShowEndGameModal(false)}
+      />
+      <ConfirmModal
+        open={showResetModal}
+        title="Spiel zurücksetzen?"
+        description="Alle Daten werden gelöscht. Das kann nicht rückgängig gemacht werden."
+        confirmLabel="Zurücksetzen"
+        onConfirm={doReset}
+        onCancel={() => setShowResetModal(false)}
+        danger
+      />
     </main>
   );
 }
@@ -1694,6 +1730,7 @@ function TopBar({
   onUndo,
   undoLabel,
   onReset,
+  onEndGame,
   onGoHome,
   onOpenSettings,
   theme
@@ -1705,6 +1742,7 @@ function TopBar({
   onUndo: () => void;
   undoLabel?: string;
   onReset: () => void;
+  onEndGame: () => void;
   onGoHome: () => void;
   onOpenSettings: () => void;
   theme: "light" | "dark";
@@ -1745,6 +1783,9 @@ function TopBar({
           <IconButton label="Startseite" onClick={onGoHome} icon={<Home />} theme={theme} />
           <IconButton label="Einstellungen" onClick={onOpenSettings} icon={<Settings />} theme={theme} />
           <IconButton label={undoLabel ? `Undo: ${undoLabel}` : "Undo"} onClick={onUndo} disabled={!undoLabel} icon={<Undo2 />} theme={theme} />
+          {game.status === "playing" && (
+            <IconButton label="Spiel beenden" onClick={onEndGame} icon={<Flag />} theme={theme} />
+          )}
           <IconButton label="Reset" onClick={onReset} icon={<RotateCcw />} danger theme={theme} />
         </div>
       </div>
