@@ -12,6 +12,7 @@ import {
   ClipboardList,
   Coins,
   Delete,
+  Flag,
   Globe2,
   History,
   Home,
@@ -35,6 +36,7 @@ import {
   Zap
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import ConfirmModal from "@/components/ConfirmModal";
 
 type BottleSize = 0.25 | 0.33 | 0.5 | number;
 
@@ -815,6 +817,8 @@ export default function BierwiegenApp() {
   const [showSettings, setShowSettings] = useState(false);
   const [revealStage, setRevealStage] = useState<"idle" | "drumroll" | "revealed">("idle");
   const [confettiKey, setConfettiKey] = useState(0);
+  const [showEndGameModal, setShowEndGameModal] = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false);
 
   const sound = useCallback((name: SoundName) => playSound(name, settings.sound), [settings.sound]);
   const buzz = useCallback((pattern: number | number[]) => vibrate(pattern, settings.vibration), [settings.vibration]);
