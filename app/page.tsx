@@ -1658,7 +1658,7 @@ export default function BierwiegenApp() {
       {handoffMessage && (
         <div className="pointer-events-none fixed inset-0 z-[60] grid place-items-center">
           <div className="handoff-splash rounded-3xl bg-malt/95 px-10 py-8 text-center shadow-2xl">
-            <div className="text-sm font-black uppercase tracking-widest text-amberBeer">Übergabe an</div>
+            <div className="text-sm font-black uppercase tracking-widest text-orange">Übergabe an</div>
             <div className="mt-2 text-5xl font-black text-white">{handoffMessage}</div>
           </div>
         </div>
@@ -1941,15 +1941,15 @@ function HomeScreen({
         {/* Trust-row */}
         <div className="mt-6 flex flex-wrap items-center gap-3 text-[0.7rem] font-black uppercase tracking-wider opacity-70">
           <span className="inline-flex items-center gap-1.5">
-            <Save className="size-3.5 text-amberBeer" />
+            <Save className="size-3.5 text-orange" />
             Lokal gespeichert
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <Volume2 className="size-3.5 text-amberBeer" />
+            <Volume2 className="size-3.5 text-orange" />
             Sound &amp; Haptik
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <Trophy className="size-3.5 text-amberBeer" />
+            <Trophy className="size-3.5 text-orange" />
             Statistiken
           </span>
         </div>
@@ -2208,7 +2208,7 @@ function SetupScreen(props: {
           dark ? "border-nightBorder bg-nightSurface/90" : "border-white/80 bg-white/80 ring-1 ring-white/60"
         )}
       >
-        <h2 className={clsx("text-xl font-black", dark ? "text-amberBeer" : "text-malt")}>Spieler-Setup</h2>
+        <h2 className={clsx("text-xl font-black", dark ? "text-orange" : "text-malt")}>Spieler-Setup</h2>
         <p className={clsx("text-xs font-bold", dark ? "text-nightMuted" : "text-malt/65")}>
           Startgewicht bleibt die Hauptsache, Bier-Defaults schnell.
         </p>
@@ -2441,7 +2441,7 @@ function RoundSetupScreen({
           dark ? "border-nightBorder bg-nightSurface/90" : "border-white/80 bg-white/80 ring-1 ring-white/60"
         )}
       >
-        <h2 className={clsx("text-xl font-black", dark ? "text-amberBeer" : "text-malt")}>Runde {game.rounds.length + 1} vorbereiten</h2>
+        <h2 className={clsx("text-xl font-black", dark ? "text-orange" : "text-malt")}>Runde {game.rounds.length + 1} vorbereiten</h2>
         <div className="mt-2">
           <div className={clsx("mb-1.5 text-xs font-black uppercase", dark ? "text-nightMuted" : "text-malt/60")}>Ansager auswählen</div>
           <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-4">
@@ -2576,7 +2576,7 @@ function GameBoard({
             <span
               className={clsx(
                 "rounded-full px-4 py-2 text-sm font-black",
-                dark ? "bg-amberBeer/20 text-amberBeer" : "bg-[#fff1bd] text-malt"
+                dark ? "bg-orange/20 text-orange" : "bg-[#fff1bd] text-malt"
               )}
             >
               Ziel {grams(activeRound.targetWeight)}
@@ -2896,7 +2896,7 @@ function RoundCell({
           <div
             className={clsx(
               "rounded-xl px-2 py-1 text-xs font-black",
-              dark ? "bg-amberBeer/20 text-amberBeer" : "bg-[#fff4d4] text-malt"
+              dark ? "bg-orange/20 text-orange" : "bg-[#fff4d4] text-malt"
             )}
           >
             {warning ? "Warnung: höher als vorher" : "Warnung: großer Sprung"}
@@ -3077,7 +3077,7 @@ function ReviewPanel({
       {/* Drumroll / Reveal-Banner */}
       {revealStage === "drumroll" && (
         <div className="mt-5 rounded-2xl bg-malt/95 p-8 text-center text-white shadow-2xl drum-shake">
-          <div className="text-sm font-black uppercase tracking-widest text-amberBeer">Trommelwirbel...</div>
+          <div className="text-sm font-black uppercase tracking-widest text-orange">Trommelwirbel...</div>
           <div className="mx-auto mt-4 grid size-16 place-items-center rounded-2xl bg-orange text-white">
             <PartyPopper className="size-9" />
           </div>
@@ -3412,7 +3412,7 @@ function FinalScreen({
       >
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <h2 className={clsx("flex items-center gap-2 text-2xl font-black", dark ? "text-amberBeer" : "text-malt")}>
+            <h2 className={clsx("flex items-center gap-2 text-2xl font-black", dark ? "text-orange" : "text-malt")}>
               <Trophy className="size-6 text-orangeBeer" />
               Endranking
             </h2>
@@ -3781,7 +3781,7 @@ function Numpad({
             </div>
           )}
           {targetValue !== undefined && (
-            <div className={clsx("rounded-xl py-2", dark ? "bg-amberBeer/20 text-amberBeer" : "bg-[#fff1bd] text-malt")}>
+            <div className={clsx("rounded-xl py-2", dark ? "bg-orange/20 text-orange" : "bg-[#fff1bd] text-malt")}>
               <div>Ziel</div>
               <div className="mt-1 text-sm">{grams(targetValue)}</div>
             </div>
@@ -3819,7 +3819,7 @@ function Numpad({
                 "numpad-key h-16 rounded-2xl text-3xl font-black shadow-sm transition sm:h-20 sm:text-4xl",
                 key.variant === "ctrl"
                   ? dark
-                    ? "bg-nightSurface2 text-amberBeer"
+                    ? "bg-nightSurface2 text-orange"
                     : "bg-malt text-white"
                   : dark
                   ? "bg-nightBg text-nightText"
