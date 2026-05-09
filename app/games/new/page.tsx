@@ -9,6 +9,8 @@ import { useUser } from "@/lib/auth/use-user";
 import { createOnlineGame } from "@/lib/db/games";
 import { addGuestPlayer } from "@/lib/db/players";
 import { ensureProfile } from "@/lib/db/profile";
+import { play } from "@/lib/fx/sound";
+import { vibrate } from "@/lib/fx/haptics";
 
 type DraftPlayer = {
   tempId: string;
@@ -25,6 +27,19 @@ const newDraft = (): DraftPlayer => ({
   bottleSize: "0.33",
   startWeight: ""
 });
+
+const SUGGESTED_BRANDS = [
+  "Augustiner",
+  "Tegernseer",
+  "Paulaner",
+  "Erdinger",
+  "Franziskaner",
+  "Hofbräu",
+  "Spaten",
+  "Andechs"
+];
+
+const BOTTLE_SIZES = ["0.33", "0.5", "0.25"];
 
 export default function NewGamePage() {
   const { user, loading } = useUser();
@@ -46,10 +61,12 @@ export default function NewGamePage() {
   const submit = async () => {
     if (!gameName.trim()) {
       setError("Bitte einen Spielnamen vergeben.");
+      vibrate("fail");
       return;
     }
     setSubmitting(true);
     setError(null);
+    play("tap");
     try {
       const profile = await ensureProfile(user.id, {
         display_name: user.user_metadata?.display_name ?? user.email?.split("@")[0] ?? "Host"
@@ -83,111 +100,181 @@ export default function NewGamePage() {
         });
       }
 
+      play("bell");
+      vibrate("success");
       router.push(`/games/${game.id}`);
     } catch (error_) {
       const message = error_ instanceof Error ? error_.message : "Fehler beim Erstellen.";
       setError(message);
+      vibrate("fail");
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="flex h-dvh flex-col bg-[var(--bg-page)]">
+    <div className="flex h-dvh flex-col">
       <AccountHeader />
-      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-2 overflow-hidden px-3 py-3 sm:px-5">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-black text-malt dark:text-nightText">Neues Online-Spiel</h1>
-          <Link href="/" className="text-xs font-bold text-malt/55 underline dark:text-nightMuted">
-            Lokales Spiel?
-          </Link>
-        </div>
+      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-3 overflow-hidden px-3 py-3 sm:px-5">
+        <section className="coaster coaster-rim spotlight px-4 py-3 sm:px-6 sm:py-4">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <div className="text-[0.6rem] font-black uppercase tracking-[0.25em] text-malt/55 dark:text-brassLight/60">
+                Neue Runde an der Theke
+              </div>
+              <h1 className="gold-text bg-clip-text text-2xl font-black sm:text-3xl">Neues Online-Spiel</h1>
+              <p className="text-xs font-bold text-malt/65 dark:text-nightMuted">
+                Setze die Theke. Spieler kannst du jederzeit in der Lobby nachladen.
+              </p>
+            </div>
+            <Link
+              href="/"
+              onClick={() => play("tap")}
+              className="text-xs font-bold text-malt/55 underline decoration-amberBeer/60 underline-offset-4 dark:text-nightMuted"
+            >
+              Lieber lokal spielen?
+            </Link>
+          </div>
+        </section>
 
         <div className="grid flex-1 gap-3 overflow-hidden md:grid-cols-2">
           {/* Linke Spalte: Spielname + Host-Bier */}
-          <div className="flex flex-col gap-2 overflow-hidden">
-            <div className="rounded-xl border border-white/80 bg-white/80 p-3 shadow-board backdrop-blur-xl ring-1 ring-white/60 dark:ring-0 dark:border-nightBorder dark:bg-nightSurface">
-              <label className="text-xs font-black uppercase text-malt/55 dark:text-nightMuted">Spielname</label>
+          <div className="flex flex-col gap-3 overflow-hidden">
+            <div className="coaster p-4">
+              <label className="text-[0.65rem] font-black uppercase tracking-wider text-malt/55 dark:text-nightMuted">
+                Spielname
+              </label>
               <input
                 value={gameName}
                 onChange={(event) => setGameName(event.target.value)}
                 placeholder="z. B. Donnerstag-Runde"
-                className="mt-1 h-12 w-full rounded-xl border-2 border-[#ead9b9] bg-foam px-3 text-lg font-black outline-none focus:border-amberBeer dark:border-nightBorder dark:bg-nightBg dark:text-nightText"
+                className="tap-input mt-1.5 h-12 w-full px-3 text-lg font-black"
               />
             </div>
-            <div className="rounded-xl border border-white/80 bg-white/80 p-3 shadow-board backdrop-blur-xl ring-1 ring-white/60 dark:ring-0 dark:border-nightBorder dark:bg-nightSurface">
-              <h3 className="mb-2 flex items-center gap-2 text-xs font-black uppercase text-malt/55 dark:text-nightMuted">
-                <Beer className="size-4 text-orangeBeer" />
+            <div className="coaster p-4">
+              <h3 className="mb-2 flex items-center gap-2 text-[0.65rem] font-black uppercase tracking-wider text-malt/55 dark:text-nightMuted">
+                <Beer className="size-3.5 text-orangeBeer" />
                 Dein Bier
               </h3>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid gap-2">
+                <div className="flex flex-wrap gap-1.5">
+                  {SUGGESTED_BRANDS.map((brand) => (
+                    <button
+                      key={brand}
+                      onClick={() => {
+                        setHostBeer(brand);
+                        play("tap");
+                      }}
+                      className={`rounded-full px-3 py-1 text-xs font-black transition active:scale-95 ${
+                        hostBeer === brand
+                          ? "brass-pill"
+                          : "bg-cream/70 text-malt hover:bg-cream dark:bg-nightSurface2/70 dark:text-nightText"
+                      }`}
+                    >
+                      {brand}
+                    </button>
+                  ))}
+                </div>
                 <input
                   value={hostBeer}
                   onChange={(event) => setHostBeer(event.target.value)}
-                  placeholder="Marke"
-                  className="h-10 rounded-lg border-2 border-[#ead9b9] bg-foam px-2 font-black outline-none focus:border-amberBeer dark:border-nightBorder dark:bg-nightBg dark:text-nightText"
+                  placeholder="Eigene Marke"
+                  className="tap-input h-10 w-full px-3 text-sm font-black"
                 />
-                <input
-                  value={hostBottle}
-                  onChange={(event) => setHostBottle(event.target.value)}
-                  inputMode="decimal"
-                  placeholder="0.33"
-                  className="h-10 rounded-lg border-2 border-[#ead9b9] bg-foam px-2 text-center font-black outline-none focus:border-amberBeer dark:border-nightBorder dark:bg-nightBg dark:text-nightText"
-                />
-                <input
-                  value={hostStartWeight}
-                  onChange={(event) => setHostStartWeight(event.target.value)}
-                  inputMode="decimal"
-                  placeholder="Start g"
-                  className="h-10 rounded-lg border-2 border-[#ead9b9] bg-foam px-2 text-center font-black outline-none focus:border-amberBeer dark:border-nightBorder dark:bg-nightBg dark:text-nightText"
-                />
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <div className="mb-1 text-[0.6rem] font-black uppercase tracking-wider text-malt/55 dark:text-nightMuted">
+                      Flasche
+                    </div>
+                    <div className="flex gap-1">
+                      {BOTTLE_SIZES.map((size) => (
+                        <button
+                          key={size}
+                          onClick={() => {
+                            setHostBottle(size);
+                            play("tap");
+                          }}
+                          className={`flex-1 rounded-xl px-2 py-2 text-sm font-black transition active:scale-95 ${
+                            hostBottle === size
+                              ? "brass-pill"
+                              : "bg-cream/70 text-malt dark:bg-nightSurface2/70 dark:text-nightText"
+                          }`}
+                        >
+                          {size.replace(".", ",")} l
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="mb-1 text-[0.6rem] font-black uppercase tracking-wider text-malt/55 dark:text-nightMuted">
+                      Startgewicht
+                    </div>
+                    <input
+                      value={hostStartWeight}
+                      onChange={(event) => setHostStartWeight(event.target.value)}
+                      inputMode="decimal"
+                      placeholder="z. B. 542"
+                      className="tap-input h-10 w-full px-3 text-center text-sm font-black"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
             {error && (
-              <div className="rounded-xl bg-dangerSoft px-3 py-2 text-sm font-bold text-red-700">{error}</div>
+              <div className="rounded-xl border-2 border-wine/40 bg-dangerSoft px-3 py-2 text-sm font-bold text-wine">
+                {error}
+              </div>
             )}
 
             <button
               onClick={submit}
               disabled={submitting}
-              className="cta-pulse mt-auto inline-flex items-center justify-center gap-2 rounded-full bg-amberBeer px-5 py-3 text-base font-black text-malt shadow-lg active:scale-95 disabled:opacity-50"
+              className="brass-pill cta-pulse mt-auto inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-base font-black active:scale-95 disabled:opacity-50"
             >
-              {submitting ? "Erstelle..." : "Spiel erstellen"}
+              {submitting ? "Erstelle…" : "Spiel erstellen"}
               <ArrowRight className="size-4" />
             </button>
           </div>
 
           {/* Rechte Spalte: Gäste */}
-          <div className="flex h-full flex-col rounded-xl border border-white/80 bg-white/80 p-3 shadow-board backdrop-blur-xl ring-1 ring-white/60 dark:ring-0 dark:border-nightBorder dark:bg-nightSurface">
+          <div className="coaster flex h-full flex-col overflow-hidden p-3">
             <div className="mb-2 flex items-center justify-between">
-              <h3 className="text-xs font-black uppercase text-malt/55 dark:text-nightMuted">Gastspieler</h3>
+              <h3 className="text-[0.65rem] font-black uppercase tracking-wider text-malt/55 dark:text-nightMuted">
+                Gastspieler
+              </h3>
               <button
-                onClick={() => setGuests((current) => [...current, newDraft()])}
-                className="inline-flex items-center gap-1 rounded-full bg-cream px-3 py-1 text-xs font-black text-malt active:scale-95 dark:bg-nightSurface2 dark:text-nightText"
+                onClick={() => {
+                  setGuests((current) => [...current, newDraft()]);
+                  play("click");
+                }}
+                className="brass-pill inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-black active:scale-95"
               >
                 <Plus className="size-3" />
                 Gast
               </button>
             </div>
             {guests.length === 0 ? (
-              <p className="text-xs font-bold text-malt/55 dark:text-nightMuted">
-                Account-Spieler kannst du in der Lobby einladen.
-              </p>
+              <div className="flex flex-1 items-center justify-center rounded-xl border-2 border-dashed border-malt/15 bg-foam/40 p-3 text-center text-xs font-bold text-malt/55 dark:border-brassLight/15 dark:bg-nightBg/40">
+                Account-Spieler kannst du in der Lobby einladen, Gäste hier hinzufügen.
+              </div>
             ) : (
-              <div className="grid flex-1 gap-1.5 overflow-y-auto">
+              <div className="scroll-vintage grid flex-1 gap-1.5 overflow-y-auto pr-1">
                 {guests.map((guest, index) => (
                   <div
                     key={guest.tempId}
-                    className="rounded-xl border border-[#ead9b9] bg-foam p-2 dark:border-nightBorder dark:bg-nightBg"
+                    className="rounded-xl border border-malt/10 bg-foam/80 p-2.5 dark:border-nightBorder dark:bg-nightBg/70"
                   >
                     <div className="flex items-center justify-between">
-                      <div className="text-[0.6rem] font-black uppercase text-malt/50 dark:text-nightMuted">
+                      <div className="text-[0.6rem] font-black uppercase tracking-wider text-malt/55 dark:text-nightMuted">
                         Gast #{index + 1}
                       </div>
                       <button
-                        onClick={() => setGuests((current) => current.filter((g) => g.tempId !== guest.tempId))}
-                        className="grid size-7 place-items-center rounded-full bg-dangerSoft text-red-700"
+                        onClick={() => {
+                          setGuests((current) => current.filter((g) => g.tempId !== guest.tempId));
+                          play("click");
+                        }}
+                        className="grid size-7 place-items-center rounded-full bg-dangerSoft text-wine active:scale-95"
                       >
                         <Trash2 className="size-3.5" />
                       </button>
@@ -196,28 +283,28 @@ export default function NewGamePage() {
                       value={guest.displayName}
                       onChange={(event) => updateGuest(setGuests, guest.tempId, { displayName: event.target.value })}
                       placeholder="Name"
-                      className="mt-1.5 h-8 w-full rounded-md border border-[#ead9b9] bg-white px-2 text-sm font-black outline-none focus:border-amberBeer dark:border-nightBorder dark:bg-nightSurface dark:text-nightText"
+                      className="tap-input mt-1.5 h-9 w-full px-2 text-sm font-black"
                     />
                     <div className="mt-1.5 grid grid-cols-3 gap-1">
                       <input
                         value={guest.beerBrand}
                         onChange={(event) => updateGuest(setGuests, guest.tempId, { beerBrand: event.target.value })}
                         placeholder="Marke"
-                        className="h-8 rounded-md border border-[#ead9b9] bg-white px-1.5 text-xs font-black outline-none focus:border-amberBeer dark:border-nightBorder dark:bg-nightSurface dark:text-nightText"
+                        className="tap-input h-9 w-full px-2 text-xs font-black"
                       />
                       <input
                         value={guest.bottleSize}
                         onChange={(event) => updateGuest(setGuests, guest.tempId, { bottleSize: event.target.value })}
                         inputMode="decimal"
                         placeholder="0.33"
-                        className="h-8 rounded-md border border-[#ead9b9] bg-white px-1.5 text-center text-xs font-black outline-none focus:border-amberBeer dark:border-nightBorder dark:bg-nightSurface dark:text-nightText"
+                        className="tap-input h-9 w-full px-2 text-center text-xs font-black"
                       />
                       <input
                         value={guest.startWeight}
                         onChange={(event) => updateGuest(setGuests, guest.tempId, { startWeight: event.target.value })}
                         inputMode="decimal"
                         placeholder="g"
-                        className="h-8 rounded-md border border-[#ead9b9] bg-white px-1.5 text-center text-xs font-black outline-none focus:border-amberBeer dark:border-nightBorder dark:bg-nightSurface dark:text-nightText"
+                        className="tap-input h-9 w-full px-2 text-center text-xs font-black"
                       />
                     </div>
                   </div>

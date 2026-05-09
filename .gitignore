@@ -11,6 +11,7 @@ build/
 
 # Runtime and local tooling
 .playwright-mcp/
+.claude/
 *.tsbuildinfo
 
 # Environment files

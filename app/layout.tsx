@@ -2,8 +2,9 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Bierwiegen",
-  description: "Das Trinkspiel für Waage, Zielgewicht und schlechte Entscheidungen.",
+  title: "Bierwiegen — Premium Trinkspiel",
+  description:
+    "Das Trinkspiel für Waage, Zielgewicht und schlechte Entscheidungen. Premium Bier-Bar — online & offline.",
   manifest: "/manifest.webmanifest",
   icons: {
     icon: "/icon.svg",
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f6b73c",
+  themeColor: "#c8932b",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -27,7 +28,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="de">
-      <body>{children}</body>
+      <body className="relative">{children}</body>
     </html>
   );
 }

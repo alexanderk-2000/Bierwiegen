@@ -2,24 +2,65 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   Bierwiegen — Premium Bier-Bar Design System
+   Warm, edel, holzig, Schaum & Messing.
+   ============================================================ */
+
 :root {
   color-scheme: light;
   --bg-page:
-    linear-gradient(135deg, rgba(47, 143, 104, 0.08), transparent 36%),
-    radial-gradient(circle at 15% 0%, #fff1bd 0, #fbf0dc 30%, #fffaf1 74%);
+    radial-gradient(1200px 600px at 12% -10%, rgba(246, 183, 60, 0.18), transparent 65%),
+    radial-gradient(900px 500px at 88% -5%, rgba(232, 121, 50, 0.12), transparent 60%),
+    radial-gradient(circle at 50% 110%, rgba(67, 43, 29, 0.08), transparent 70%),
+    linear-gradient(180deg, #fff5dc 0%, #fbf0dc 35%, #f1e1bf 100%);
   --bg-solid: #fbf0dc;
   --color-text: #24201b;
-  --focus-ring: rgba(47, 143, 104, 0.42);
+  --focus-ring: rgba(200, 147, 43, 0.5);
+  --bar-rim: linear-gradient(180deg, #fff2c2 0%, #f5d27a 30%, #e6b34a 60%, #c8932b 100%);
+  --bar-wood:
+    linear-gradient(135deg, #c79460 0%, #b97f4a 40%, #8a5a3b 100%);
+  --bar-wood-grain:
+    repeating-linear-gradient(
+      95deg,
+      rgba(0, 0, 0, 0.05) 0px,
+      rgba(0, 0, 0, 0) 2px,
+      rgba(255, 255, 255, 0.06) 5px,
+      rgba(0, 0, 0, 0) 8px
+    );
+  --foam-color: #fff8e8;
+  --beer-pilsner: linear-gradient(180deg, #f5c958 0%, #e8a92b 70%, #c8801b 100%);
+  --beer-stout: linear-gradient(180deg, #5b3019 0%, #3d2412 60%, #1d100a 100%);
+  --shadow-coaster:
+    0 1px 0 rgba(255, 255, 255, 0.6) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.08) inset,
+    0 14px 30px rgba(67, 43, 29, 0.18),
+    0 2px 6px rgba(67, 43, 29, 0.1);
+  --shadow-deepwell:
+    inset 0 2px 6px rgba(29, 16, 10, 0.45),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+  --gold-text: linear-gradient(180deg, #fff2c2 0%, #e6b34a 50%, #8d671c 100%);
 }
 
 .dark {
   color-scheme: dark;
   --bg-page:
-    linear-gradient(135deg, rgba(47, 143, 104, 0.12), transparent 34%),
-    radial-gradient(circle at 15% 0%, #2b2118 0, #1a1410 34%, #100c08 78%);
-  --bg-solid: #1a1410;
+    radial-gradient(1100px 600px at 50% -10%, rgba(246, 183, 60, 0.22), transparent 60%),
+    radial-gradient(900px 500px at 8% 100%, rgba(232, 121, 50, 0.12), transparent 70%),
+    radial-gradient(900px 500px at 92% 100%, rgba(47, 143, 104, 0.09), transparent 70%),
+    linear-gradient(180deg, #20140d 0%, #14100a 50%, #0c0805 100%);
+  --bg-solid: #14100a;
   --color-text: #f5e8d0;
-  --focus-ring: rgba(246, 183, 60, 0.48);
+  --focus-ring: rgba(246, 183, 60, 0.55);
+  --bar-rim: linear-gradient(180deg, #fff2c2 0%, #f5d27a 25%, #c8932b 65%, #654a13 100%);
+  --bar-wood:
+    linear-gradient(135deg, #2a160c 0%, #3a200f 35%, #5d3a22 70%, #2a160c 100%);
+  --foam-color: #f6ecd2;
+  --shadow-coaster:
+    0 1px 0 rgba(255, 255, 255, 0.05) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.55) inset,
+    0 22px 50px rgba(0, 0, 0, 0.55),
+    0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 * {
@@ -37,7 +78,7 @@ body {
 html.dark,
 body.dark,
 .dark {
-  background: #1a1410;
+  background: #0c0805;
 }
 
 body {
@@ -51,13 +92,37 @@ body {
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
-  font-feature-settings: "kern";
+  font-feature-settings: "kern", "ss01";
   font-synthesis-weight: none;
   overscroll-behavior: none;
   text-rendering: geometricPrecision;
   -webkit-tap-highlight-color: transparent;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Sehr dezenter Schaum-Noise-Layer über dem Hintergrund */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(rgba(67, 43, 29, 0.05) 1px, transparent 1px),
+    radial-gradient(rgba(67, 43, 29, 0.04) 1px, transparent 1px);
+  background-size: 7px 7px, 11px 11px;
+  background-position: 0 0, 3px 4px;
+  opacity: 0.32;
+  mix-blend-mode: multiply;
+  z-index: 0;
+}
+
+.dark body::before {
+  background-image:
+    radial-gradient(rgba(245, 232, 208, 0.05) 1px, transparent 1px),
+    radial-gradient(rgba(245, 232, 208, 0.04) 1px, transparent 1px);
+  mix-blend-mode: screen;
+  opacity: 0.24;
 }
 
 button,
@@ -86,7 +151,7 @@ select:focus-visible {
 }
 
 ::selection {
-  background: rgba(246, 183, 60, 0.38);
+  background: rgba(246, 183, 60, 0.45);
 }
 
 input[type="number"] {
@@ -100,7 +165,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .scrollbar-soft {
-  scrollbar-color: rgba(82, 50, 31, 0.28) transparent;
+  scrollbar-color: rgba(82, 50, 31, 0.32) transparent;
   scrollbar-width: thin;
 }
 
@@ -108,67 +173,226 @@ input[type="number"]::-webkit-inner-spin-button {
   scrollbar-color: rgba(245, 232, 208, 0.22) transparent;
 }
 
-.coin-flip {
-  animation: coinFlip 1.2s ease-in-out;
+/* =========================================================
+   PREMIUM BIER-BAR UTILITY-CLASSES
+   ========================================================= */
+
+/* Holz-Theke (warm braun, mit feiner Maserung) */
+.bar-wood {
+  background-image: var(--bar-wood);
+  position: relative;
+  isolation: isolate;
 }
 
-.hit-pop {
-  animation: hitPop 620ms ease both;
+.bar-wood::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--bar-wood-grain);
+  opacity: 0.55;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  border-radius: inherit;
 }
 
-@keyframes coinFlip {
-  0% {
-    transform: rotateY(0deg) translateY(0);
-  }
-  45% {
-    transform: rotateY(720deg) translateY(-22px);
-  }
-  100% {
-    transform: rotateY(1080deg) translateY(0);
-  }
+/* Glas-Karte mit warmem Schimmer (Coaster-Optik) */
+.coaster {
+  background: rgba(255, 250, 241, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: var(--shadow-coaster);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 20px;
+  position: relative;
 }
 
-@keyframes hitPop {
-  0% {
-    transform: scale(0.96);
-  }
-  55% {
-    transform: scale(1.04);
-  }
-  100% {
-    transform: scale(1);
-  }
+.dark .coaster {
+  background: linear-gradient(180deg, rgba(58, 47, 37, 0.94) 0%, rgba(42, 34, 27, 0.96) 100%);
+  border-color: rgba(245, 210, 122, 0.12);
 }
 
-@media (display-mode: standalone) {
-  body {
-    user-select: none;
-  }
+/* Edler Coaster mit Brass-Linie oben */
+.coaster-rim {
+  position: relative;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
-  }
+.coaster-rim::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: var(--bar-rim);
+  opacity: 0.55;
+  border-radius: 20px 20px 0 0;
+  pointer-events: none;
 }
 
-/* Numpad keypress feedback */
-.numpad-key {
-  -webkit-user-select: none;
-  user-select: none;
-  touch-action: manipulation;
+/* Brass-Pille (Goldener Pegel/Button-Highlight) */
+.brass-pill {
+  background-image: linear-gradient(180deg, #fff2c2 0%, #f5d27a 30%, #e6b34a 60%, #c8932b 100%);
+  color: #432b1d;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.7) inset,
+    0 -2px 6px rgba(141, 103, 28, 0.55) inset,
+    0 12px 28px rgba(141, 103, 28, 0.32);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
-.numpad-key:active {
-  transform: scale(0.94);
+.brass-pill:active {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35) inset,
+    0 -1px 4px rgba(141, 103, 28, 0.55) inset,
+    0 4px 10px rgba(141, 103, 28, 0.35);
 }
 
-/* Confetti pieces */
+/* Embossed Text (geprägt im Holz, dezent dunkler) */
+.embossed-text {
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.5),
+    0 -1px 0 rgba(0, 0, 0, 0.18);
+}
+
+.dark .embossed-text {
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.06),
+    0 -1px 0 rgba(0, 0, 0, 0.55);
+}
+
+/* Goldener Premium-Schriftzug */
+.gold-text {
+  background: linear-gradient(180deg, #fff2c2 0%, #e6b34a 50%, #8d671c 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.12));
+}
+
+.dark .gold-text {
+  background: linear-gradient(180deg, #fff8d0 0%, #f5d27a 45%, #c8932b 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Goldener Shimmer-Effekt (für CTAs / Hero) */
+.gold-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.gold-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255, 248, 200, 0.55) 48%,
+    transparent 66%
+  );
+  background-size: 200% 100%;
+  animation: goldShimmer 4.5s linear infinite;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+@keyframes goldShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Bierkrug-SVG-Filter (warmes Innenleuchten) */
+.mug-glow {
+  filter: drop-shadow(0 8px 18px rgba(232, 121, 50, 0.25));
+}
+
+.dark .mug-glow {
+  filter: drop-shadow(0 8px 28px rgba(246, 183, 60, 0.32));
+}
+
+/* Schaumkrone (für Headings & Mug) */
+.foam-cap {
+  background: radial-gradient(ellipse at 30% 20%, #ffffff, #fff8e8 60%, #f6ecd2 100%);
+  position: relative;
+}
+
+.foam-cap::before,
+.foam-cap::after {
+  content: "";
+  position: absolute;
+  background: inherit;
+  border-radius: 50%;
+}
+
+/* Glas-Pegel (Eingabefeld im Tap-Look) */
+.tap-input {
+  background: linear-gradient(180deg, #fffaf1 0%, #f6ecd2 100%);
+  border: 2px solid rgba(141, 103, 28, 0.25);
+  box-shadow:
+    inset 0 2px 4px rgba(67, 43, 29, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.8);
+  border-radius: 14px;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.tap-input:focus {
+  border-color: rgba(200, 147, 43, 0.85);
+  box-shadow:
+    inset 0 2px 4px rgba(67, 43, 29, 0.08),
+    0 0 0 3px rgba(246, 183, 60, 0.32);
+  outline: none;
+}
+
+.dark .tap-input {
+  background: linear-gradient(180deg, #261c14 0%, #1c140e 100%);
+  border-color: rgba(245, 210, 122, 0.18);
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.55),
+    0 1px 0 rgba(245, 210, 122, 0.05);
+  color: var(--color-text);
+}
+
+.dark .tap-input:focus {
+  border-color: rgba(245, 210, 122, 0.65);
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.55),
+    0 0 0 3px rgba(246, 183, 60, 0.28);
+}
+
+/* Nightlamp-Spotlight für Hero & Phasen-Wechsel */
+.spotlight {
+  position: relative;
+}
+
+.spotlight::before {
+  content: "";
+  position: absolute;
+  inset: -10% -10% auto -10%;
+  height: 120%;
+  background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(246, 183, 60, 0.22), transparent 75%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Schaum-Bubbles im Krug */
+.bubble {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
+  animation: bubbleRise 4s ease-in infinite;
+  pointer-events: none;
+}
+
+@keyframes bubbleRise {
+  0% { transform: translate3d(0, 0, 0) scale(0.6); opacity: 0; }
+  10% { opacity: 0.85; }
+  100% { transform: translate3d(0, -160%, 0) scale(1.1); opacity: 0; }
+}
+
+/* Confetti pieces (bestehend) */
 .confetti-piece {
   position: absolute;
   top: -20vh;
@@ -185,64 +409,162 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 @keyframes handoff {
-  0% {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-  20% {
-    transform: scale(1.05);
-    opacity: 1;
-  }
-  80% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(0.95);
-    opacity: 0;
-  }
+  0% { transform: scale(0.8); opacity: 0; }
+  20% { transform: scale(1.05); opacity: 1; }
+  80% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0; }
 }
 
-/* Big primary CTA pulse for clear next-action */
+/* Bestehende Animationen (für /app/page.tsx Kompatibilität) */
+.coin-flip {
+  animation: coinFlip 1.2s ease-in-out;
+}
+
+.hit-pop {
+  animation: hitPop 620ms ease both;
+}
+
+@keyframes coinFlip {
+  0% { transform: rotateY(0deg) translateY(0); }
+  45% { transform: rotateY(720deg) translateY(-22px); }
+  100% { transform: rotateY(1080deg) translateY(0); }
+}
+
+@keyframes hitPop {
+  0% { transform: scale(0.96); }
+  55% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+
+/* CTA-Pulse (bestehend, polished) */
 .cta-pulse {
-  animation: ctaPulse 2.2s ease-in-out infinite;
+  animation: ctaPulse 2.4s ease-in-out infinite;
 }
 
 @keyframes ctaPulse {
   0%, 100% {
-    box-shadow: 0 18px 50px rgba(82, 50, 31, 0.14), 0 0 0 0 rgba(246, 183, 60, 0.6);
+    box-shadow:
+      0 18px 50px rgba(82, 50, 31, 0.18),
+      0 0 0 0 rgba(246, 183, 60, 0.6);
   }
   50% {
-    box-shadow: 0 18px 50px rgba(82, 50, 31, 0.14), 0 0 0 16px rgba(246, 183, 60, 0);
+    box-shadow:
+      0 18px 50px rgba(82, 50, 31, 0.18),
+      0 0 0 18px rgba(246, 183, 60, 0);
   }
 }
 
 .dark .cta-pulse {
-  animation: ctaPulseDark 2.2s ease-in-out infinite;
+  animation: ctaPulseDark 2.4s ease-in-out infinite;
 }
 
 @keyframes ctaPulseDark {
   0%, 100% {
-    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.4), 0 0 0 0 rgba(246, 183, 60, 0.5);
+    box-shadow:
+      0 18px 50px rgba(0, 0, 0, 0.55),
+      0 0 0 0 rgba(246, 183, 60, 0.55);
   }
   50% {
-    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.4), 0 0 0 16px rgba(246, 183, 60, 0);
+    box-shadow:
+      0 18px 50px rgba(0, 0, 0, 0.55),
+      0 0 0 18px rgba(246, 183, 60, 0);
   }
 }
 
-/* Drum roll wobble for the about-to-be-revealed worst */
+/* Drum roll wobble */
 .drum-shake {
   animation: drumShake 1.2s ease-in-out;
 }
 
 @keyframes drumShake {
-  0%, 100% {
-    transform: translateX(0) rotate(0);
+  0%, 100% { transform: translateX(0) rotate(0); }
+  10%, 30%, 50%, 70% { transform: translateX(-4px) rotate(-1deg); }
+  20%, 40%, 60%, 80% { transform: translateX(4px) rotate(1deg); }
+}
+
+/* Numpad keypress feedback */
+.numpad-key {
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.numpad-key:active {
+  transform: scale(0.94);
+}
+
+/* Kerzen-Flackern (für Top-Bar Akzente) */
+.candle-flicker {
+  animation: candleFlicker 2.4s ease-in-out infinite;
+}
+
+@keyframes candleFlicker {
+  0%, 100% { opacity: 1; transform: translateY(0) scale(1); }
+  30% { opacity: 0.92; transform: translateY(-1px) scale(1.04); }
+  60% { opacity: 0.96; transform: translateY(0.5px) scale(0.97); }
+}
+
+/* Score Tick (Animation für aktualisierte Punkte) */
+.score-tick {
+  animation: scoreTick 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes scoreTick {
+  0% { transform: translateY(8px); opacity: 0; }
+  60% { transform: translateY(-3px); opacity: 1; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Phasen-Wechsel-Animation */
+.phase-enter {
+  animation: phaseEnter 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes phaseEnter {
+  0% { opacity: 0; transform: translateY(14px) scale(0.98); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Foam-Burst-Element (Erfolg) */
+.foam-burst {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+}
+
+/* Premium Scroll für Listen */
+.scroll-vintage {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(141, 103, 28, 0.4) transparent;
+}
+.scroll-vintage::-webkit-scrollbar { width: 8px; height: 8px; }
+.scroll-vintage::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #f5d27a, #8d671c);
+  border-radius: 8px;
+}
+.scroll-vintage::-webkit-scrollbar-track { background: transparent; }
+
+/* Standalone-Mode: kein Selecten */
+@media (display-mode: standalone) {
+  body {
+    user-select: none;
   }
-  10%, 30%, 50%, 70% {
-    transform: translateX(-4px) rotate(-1deg);
+}
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
-  20%, 40%, 60%, 80% {
-    transform: translateX(4px) rotate(1deg);
+  .gold-shimmer::after,
+  .bubble,
+  .candle-flicker,
+  body::before {
+    animation: none !important;
   }
 }

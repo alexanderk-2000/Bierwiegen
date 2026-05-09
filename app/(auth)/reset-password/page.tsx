@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { play } from "@/lib/fx/sound";
 
 export default function ResetPasswordPage() {
   const [email, setEmail] = useState("");
@@ -15,6 +16,7 @@ export default function ResetPasswordPage() {
     event.preventDefault();
     setLoading(true);
     setError(null);
+    play("tap");
     const supabase = getSupabaseBrowserClient();
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/auth/callback?next=/profile`
@@ -25,24 +27,25 @@ export default function ResetPasswordPage() {
       return;
     }
     setSent(true);
+    play("bell");
   };
 
   return (
     <div className="w-full">
       <Link
         href="/login"
-        className="mb-6 inline-flex items-center gap-2 text-sm font-black text-malt/65 hover:text-malt dark:text-nightMuted"
+        className="mb-4 inline-flex items-center gap-2 text-sm font-black text-malt/65 hover:text-malt dark:text-nightMuted"
       >
         <ArrowLeft className="size-4" />
         Zurück zum Login
       </Link>
-      <div className="rounded-2xl border border-white/80 bg-white/80 p-6 shadow-board backdrop-blur-xl ring-1 ring-white/60 dark:border-nightBorder dark:bg-nightSurface/90 dark:ring-0">
-        <h1 className="text-3xl font-black text-malt dark:text-nightText">Passwort zurücksetzen</h1>
+      <div className="coaster coaster-rim p-6 phase-enter">
+        <h1 className="gold-text bg-clip-text text-3xl font-black">Passwort zurücksetzen</h1>
         <p className="mt-1 text-sm font-bold text-malt/65 dark:text-nightMuted">
           Wir schicken dir einen Reset-Link per E-Mail.
         </p>
         {sent ? (
-          <div className="mt-6 rounded-2xl border-2 border-hop bg-hop/10 p-4 text-malt dark:text-nightText">
+          <div className="mt-6 rounded-2xl border-2 border-emerald bg-emerald/10 p-4 text-malt dark:text-nightText">
             <div className="text-base font-black">Link versendet!</div>
             <p className="mt-1 text-sm font-bold opacity-80">
               Schau in dein Postfach: <strong>{email}</strong>.
@@ -56,12 +59,12 @@ export default function ResetPasswordPage() {
               placeholder="E-Mail"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className="h-14 rounded-2xl border-2 border-[#efdcb9] bg-foam px-4 text-lg font-black outline-none focus:border-amberBeer dark:border-nightBorder dark:bg-nightBg dark:text-nightText"
+              className="tap-input h-14 px-4 text-lg font-black"
             />
             <button
               type="submit"
               disabled={loading || !email}
-              className="inline-flex h-14 items-center justify-center gap-3 rounded-2xl bg-amberBeer px-6 text-lg font-black text-malt shadow-lg active:scale-95 disabled:opacity-50"
+              className="brass-pill cta-pulse inline-flex h-14 items-center justify-center gap-3 rounded-2xl px-6 text-lg font-black disabled:opacity-50"
             >
               {loading ? "Sende..." : "Reset-Link senden"}
               <ArrowRight className="size-5" />
@@ -69,7 +72,9 @@ export default function ResetPasswordPage() {
           </form>
         )}
         {error && (
-          <div className="mt-4 rounded-2xl bg-dangerSoft px-4 py-3 text-sm font-bold text-red-700">{error}</div>
+          <div className="mt-4 rounded-2xl border-2 border-wine/40 bg-dangerSoft px-4 py-3 text-sm font-bold text-wine">
+            {error}
+          </div>
         )}
       </div>
     </div>

@@ -784,11 +784,11 @@ function useLocalGame() {
     });
   }, []);
 
-  return { game, setGame, hasSavedGame: loaded && localStorage.getItem(STORAGE_KEY) !== null };
+  return { game, setGame, hasSavedGame: loaded && localStorage.getItem(STORAGE_KEY) !== null, loaded };
 }
 
 export default function BierwiegenApp() {
-  const { game, setGame, hasSavedGame } = useLocalGame();
+  const { game, setGame, hasSavedGame, loaded } = useLocalGame();
   const { settings, setSettings } = useSettings();
   const [screen, setScreen] = useState<Screen>("home");
   const [setupName, setSetupName] = useState("");
@@ -914,8 +914,10 @@ export default function BierwiegenApp() {
       );
       setScreen("endgame");
     } else if (currentRound) {
-      setScreen(currentRound.status === "review" ? "review" : "play");
+      setScreen("play");
     } else {
+      const nextCaller = game.players[game.rounds.length % game.players.length]?.id ?? game.players[0]?.id ?? "";
+      setRoundCaller(nextCaller);
       setScreen(game.players.length ? "roundSetup" : "setup");
     }
   };
@@ -1398,6 +1400,19 @@ export default function BierwiegenApp() {
     return undefined;
   }, [allMeasurementsIn, screen, numpadPlayerId, settings.autoAdvance, game.activeRoundId, game.rounds]);
 
+  // Auto-Weiterspielen nach Seiten-Reload: gespeichertes Spiel direkt fortsetzen
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (loaded && hasSavedGame) continueGame(); }, [loaded]);
+
+  // Auto-Auswerten: wenn keine Punkte verteilt werden müssen, Runde nach Reveal automatisch abschließen
+  const noSpecialsNeeded = screen === "review" && (activeRound?.exactHitPlayerIds.length ?? 1) === 0;
+  useEffect(() => {
+    if (!noSpecialsNeeded || revealStage !== "revealed") return;
+    const timeout = window.setTimeout(applyRoundPoints, 2000);
+    return () => window.clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [noSpecialsNeeded, revealStage, activeRound?.id]);
+
   return (
     <main
       className={clsx(
@@ -1818,15 +1833,19 @@ function HomeScreen({
   const dark = theme === "dark";
   return (
     <section className="relative grid h-full items-center gap-8 overflow-y-auto pb-4 pt-16 lg:grid-cols-[minmax(0,0.95fr)_minmax(430px,0.82fr)]">
-      <div className="absolute right-2 top-2 z-30 flex gap-2">
+      {/* Brass-Linie ganz oben */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-[3px] bg-[var(--bar-rim)] opacity-90" />
+      {/* Spotlight overhead */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[60vh] bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(246,183,60,0.22),transparent_75%)]"
+      />
+      <div className="absolute right-2 top-3 z-30 flex gap-2">
         <NextLink
           href="/login"
           title="Account"
           aria-label="Account"
-          className={clsx(
-            "grid h-11 place-items-center rounded-xl border px-4 text-sm font-black shadow-sm backdrop-blur transition hover:-translate-y-0.5 active:scale-95",
-            dark ? "border-nightBorder bg-nightSurface/90 text-nightText" : "border-white/80 bg-white/80 text-ink"
-          )}
+          className="brass-pill inline-flex h-11 items-center gap-2 rounded-full px-4 text-sm font-black shadow active:scale-95"
         >
           Account
         </NextLink>
@@ -1835,41 +1854,51 @@ function HomeScreen({
           title="Einstellungen"
           aria-label="Einstellungen"
           className={clsx(
-            "grid size-11 place-items-center rounded-xl border shadow-sm backdrop-blur transition hover:-translate-y-0.5 active:scale-95",
-            dark ? "border-nightBorder bg-nightSurface/90 text-nightText" : "border-white/80 bg-white/80 text-ink"
+            "grid size-11 place-items-center rounded-full border-2 shadow-sm backdrop-blur transition hover:-translate-y-0.5 active:scale-95",
+            dark ? "border-brassLight/15 bg-nightSurface2/80 text-brassLight" : "border-malt/15 bg-white/80 text-malt"
           )}
         >
           <Settings className="size-5" />
         </button>
       </div>
-      <div className="max-w-3xl">
+
+      <div className="relative max-w-3xl px-1">
         <div
           className={clsx(
-            "mb-4 inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-black uppercase shadow-sm",
-            dark ? "border-nightBorder bg-nightSurface/90 text-amberBeer" : "border-white/80 bg-white/75 text-malt"
+            "mb-4 inline-flex items-center gap-2 rounded-full border-2 px-3 py-1.5 text-[0.65rem] font-black uppercase tracking-[0.2em] shadow-sm",
+            dark ? "border-brassLight/20 bg-nightSurface/80 text-brassLight" : "border-malt/15 bg-white/80 text-malt"
           )}
         >
-          <Save className="size-3.5 text-orangeBeer" />
-          Keine Anmeldung. Funktioniert offline.
+          <Sparkles className="size-3 text-orangeBeer candle-flicker" />
+          Premium Trinkspiel · 100 % offline
         </div>
-        <h1 className={clsx("text-6xl font-black leading-none tracking-normal sm:text-7xl lg:text-8xl", dark ? "text-amberBeer" : "text-malt")}>Bierwiegen</h1>
-        <p className={clsx("mt-4 max-w-2xl text-lg font-extrabold leading-snug sm:text-xl", dark ? "text-nightMuted" : "text-malt/75")}>
-          Das Trinkspiel für Waage, Zielgewicht und schlechte Entscheidungen.
+        <h1 className="gold-text bg-clip-text text-6xl font-black leading-[0.95] tracking-tight sm:text-7xl lg:text-[6.5rem]">
+          Bierwiegen
+        </h1>
+        <p
+          className={clsx(
+            "mt-4 max-w-2xl text-lg font-extrabold leading-snug sm:text-xl",
+            dark ? "text-nightMuted" : "text-malt/75"
+          )}
+        >
+          Waage. Zielgewicht. Schaumkrone. Schlechte Entscheidungen. — Das Trinkspiel für die ehrliche Theke.
         </p>
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+        <div className="mt-7 flex flex-col gap-3 sm:flex-row">
           <button
             onClick={onNew}
-            className="cta-pulse inline-flex items-center justify-center gap-2 rounded-2xl bg-amberBeer px-6 py-4 text-lg font-black text-malt shadow-board transition hover:-translate-y-0.5 active:scale-95"
+            className="brass-pill cta-pulse gold-shimmer inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-4 text-lg font-black active:scale-95"
           >
             <Plus className="size-5" />
-            Neues Spiel
+            Neues Spiel anstoßen
           </button>
           <button
             onClick={onContinue}
             disabled={!hasSavedGame}
             className={clsx(
-              "inline-flex items-center justify-center gap-2 rounded-2xl border px-6 py-4 text-lg font-black shadow-sm transition hover:-translate-y-0.5 active:scale-95 disabled:opacity-45 disabled:hover:translate-y-0",
-              dark ? "border-nightBorder bg-nightSurface text-nightText" : "border-white/80 bg-white/80 text-malt"
+              "inline-flex items-center justify-center gap-2 rounded-2xl border-2 px-6 py-4 text-lg font-black shadow-sm transition hover:-translate-y-0.5 active:scale-95 disabled:opacity-45 disabled:hover:translate-y-0",
+              dark
+                ? "border-brassLight/20 bg-nightSurface text-brassLight"
+                : "border-malt/15 bg-white/85 text-malt"
             )}
           >
             <ArrowRight className="size-5" />
@@ -1880,8 +1909,8 @@ function HomeScreen({
           <NextLink
             href="/games/new"
             className={clsx(
-              "inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-black shadow-sm",
-              dark ? "border-nightBorder bg-nightSurface2 text-nightText" : "border-white/80 bg-white/80 text-malt"
+              "inline-flex items-center justify-center gap-2 rounded-xl border-2 px-3 py-2.5 text-sm font-black shadow-sm transition hover:-translate-y-0.5",
+              dark ? "border-brassLight/15 bg-nightSurface2 text-brassLight" : "border-malt/15 bg-white/85 text-malt"
             )}
           >
             <Globe2 className="size-4 text-hop" />
@@ -1890,8 +1919,8 @@ function HomeScreen({
           <NextLink
             href="/games"
             className={clsx(
-              "inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-black shadow-sm",
-              dark ? "border-nightBorder bg-nightSurface2 text-nightText" : "border-white/80 bg-white/80 text-malt"
+              "inline-flex items-center justify-center gap-2 rounded-xl border-2 px-3 py-2.5 text-sm font-black shadow-sm transition hover:-translate-y-0.5",
+              dark ? "border-brassLight/15 bg-nightSurface2 text-brassLight" : "border-malt/15 bg-white/85 text-malt"
             )}
           >
             <History className="size-4 text-orangeBeer" />
@@ -1900,75 +1929,193 @@ function HomeScreen({
           <NextLink
             href="/profile"
             className={clsx(
-              "inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-black shadow-sm",
-              dark ? "border-nightBorder bg-nightSurface2 text-nightText" : "border-white/80 bg-white/80 text-malt"
+              "inline-flex items-center justify-center gap-2 rounded-xl border-2 px-3 py-2.5 text-sm font-black shadow-sm transition hover:-translate-y-0.5",
+              dark ? "border-brassLight/15 bg-nightSurface2 text-brassLight" : "border-malt/15 bg-white/85 text-malt"
             )}
           >
             <BarChart3 className="size-4 text-hop" />
             Statistiken
           </NextLink>
         </div>
+
+        {/* Trust-row */}
+        <div className="mt-6 flex flex-wrap items-center gap-3 text-[0.7rem] font-black uppercase tracking-wider opacity-70">
+          <span className="inline-flex items-center gap-1.5">
+            <Save className="size-3.5 text-amberBeer" />
+            Lokal gespeichert
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <Volume2 className="size-3.5 text-amberBeer" />
+            Sound &amp; Haptik
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <Trophy className="size-3.5 text-amberBeer" />
+            Statistiken
+          </span>
+        </div>
       </div>
+
+      {/* Premium Hero-Board */}
       <div
         className={clsx(
-          "relative hidden min-h-[420px] overflow-hidden rounded-2xl border p-5 shadow-board lg:block",
-          dark ? "border-nightBorder bg-nightSurface/80" : "border-white/80 bg-white/75 ring-1 ring-white/70"
+          "spotlight relative hidden min-h-[460px] overflow-hidden rounded-3xl border-2 p-5 shadow-board lg:block",
+          dark
+            ? "border-brassLight/15 bg-nightSurface/85 ring-1 ring-brassLight/10"
+            : "border-white/80 bg-white/80 ring-1 ring-white/70"
         )}
       >
-        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-amberBeer via-hop to-orangeBeer" />
-        <div className="flex items-center justify-between">
-          <div className="rounded-lg bg-goldBeer px-3 py-1.5 text-xs font-black uppercase text-malt">
-            Partyboard
+        {/* Brass-Linie */}
+        <div className="absolute inset-x-0 top-0 h-[3px] bg-[var(--bar-rim)]" />
+        {/* Subtile Holzmaserung im Hintergrund */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.06] [background-image:repeating-linear-gradient(95deg,rgba(0,0,0,0.4)_0px,transparent_2px,rgba(255,255,255,0.4)_5px,transparent_8px)]"
+        />
+
+        <div className="relative flex items-center justify-between">
+          <div className="brass-pill rounded-full px-3 py-1.5 text-[0.65rem] font-black uppercase tracking-wider">
+            Live-Theke
           </div>
-          <div className={clsx("rounded-lg px-3 py-1.5 text-xs font-black uppercase", dark ? "bg-nightBg text-nightMuted" : "bg-cream text-malt/60")}>
+          <div
+            className={clsx(
+              "rounded-full px-3 py-1.5 text-[0.65rem] font-black uppercase tracking-wider",
+              dark ? "bg-nightBg text-brassLight/70" : "bg-cream text-malt/60"
+            )}
+          >
             Runde 3
           </div>
         </div>
-        <div className="mt-7 grid gap-5">
+
+        {/* Hero: Zielgewicht + zentraler Krug */}
+        <div className="relative mt-6 flex items-end justify-between gap-3">
           <div>
-            <div className={clsx("text-xs font-black uppercase", dark ? "text-nightMuted" : "text-malt/55")}>Zielgewicht</div>
-            <div className={clsx("mt-1 text-6xl font-black leading-none", dark ? "text-nightText" : "text-malt")}>289 g</div>
-            <div className={clsx("mt-2 text-sm font-extrabold", dark ? "text-nightMuted" : "text-malt/65")}>Ansager: Spieler 2</div>
+            <div
+              className={clsx(
+                "text-[0.65rem] font-black uppercase tracking-[0.25em]",
+                dark ? "text-brassLight/60" : "text-malt/55"
+              )}
+            >
+              Zielgewicht
+            </div>
+            <div className="gold-text bg-clip-text mt-1 text-7xl font-black leading-none">289 g</div>
+            <div
+              className={clsx(
+                "mt-2 inline-flex items-center gap-1.5 text-sm font-extrabold",
+                dark ? "text-brassLight/70" : "text-malt/65"
+              )}
+            >
+              <Medal className="size-3.5 candle-flicker text-amberBeer" />
+              Ansager: Spieler 2
+            </div>
           </div>
-          <div className="flex gap-2">
-            {[Scale, Beer, PartyPopper].map((Icon, index) => (
-              <div
-                key={index}
-                className={clsx(
-                  "grid size-12 place-items-center rounded-xl border",
-                  dark ? "border-nightBorder bg-nightBg" : "border-[#ead9b9] bg-foam"
-                )}
-              >
-                <Icon className={clsx("size-6", index === 0 ? "text-orangeBeer" : index === 1 ? "text-amberBeer" : "text-hop")} />
-              </div>
-            ))}
-          </div>
+          {/* Großer Krug */}
+          <svg viewBox="0 0 120 130" width="130" height="140" className="mug-glow shrink-0">
+            <defs>
+              <linearGradient id="hero-pilsner" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#f5c958" />
+                <stop offset="60%" stopColor="#e8a92b" />
+                <stop offset="100%" stopColor="#c8801b" />
+              </linearGradient>
+              <linearGradient id="hero-glass" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="rgba(255,255,255,0.55)" />
+                <stop offset="40%" stopColor="rgba(255,255,255,0.06)" />
+                <stop offset="100%" stopColor="rgba(255,255,255,0.4)" />
+              </linearGradient>
+              <linearGradient id="hero-foam" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#ffffff" />
+                <stop offset="100%" stopColor="#f0e0b8" />
+              </linearGradient>
+              <clipPath id="hero-clip">
+                <rect x="14" y="26" width="74" height="92" rx="8" />
+              </clipPath>
+            </defs>
+            <path
+              d="M 88 44 q 22 0 22 22 t -22 22"
+              fill="none"
+              stroke={dark ? "rgba(245,210,122,0.45)" : "rgba(67,43,29,0.4)"}
+              strokeWidth="6"
+              strokeLinecap="round"
+            />
+            <rect
+              x="12"
+              y="24"
+              width="78"
+              height="96"
+              rx="9"
+              fill="rgba(255,250,241,0.35)"
+              stroke={dark ? "rgba(245,210,122,0.35)" : "rgba(67,43,29,0.4)"}
+              strokeWidth="2"
+            />
+            <g clipPath="url(#hero-clip)">
+              <rect x="14" y="46" width="74" height="72" fill="url(#hero-pilsner)" />
+              <circle cx="30" cy="106" r="2" fill="rgba(255,255,255,0.85)">
+                <animate attributeName="cy" from="110" to="50" dur="3s" repeatCount="indefinite" />
+                <animate attributeName="opacity" from="0" to="1" dur="3s" repeatCount="indefinite" />
+              </circle>
+              <circle cx="50" cy="100" r="1.6" fill="rgba(255,255,255,0.85)">
+                <animate attributeName="cy" from="110" to="50" dur="2.4s" repeatCount="indefinite" />
+                <animate attributeName="opacity" from="0" to="1" dur="2.4s" repeatCount="indefinite" />
+              </circle>
+              <circle cx="68" cy="112" r="1.4" fill="rgba(255,255,255,0.85)">
+                <animate attributeName="cy" from="110" to="50" dur="3.6s" repeatCount="indefinite" />
+                <animate attributeName="opacity" from="0" to="1" dur="3.6s" repeatCount="indefinite" />
+              </circle>
+              <rect x="14" y="26" width="74" height="92" fill="url(#hero-glass)" opacity="0.6" />
+            </g>
+            {/* Schaumkrone */}
+            <ellipse cx="50" cy="44" rx="40" ry="9" fill="url(#hero-foam)" />
+            <circle cx="24" cy="38" r="6" fill="#fff" opacity="0.95" />
+            <circle cx="40" cy="34" r="8" fill="#fff" opacity="0.95" />
+            <circle cx="58" cy="35" r="7" fill="#fff" opacity="0.95" />
+            <circle cx="74" cy="40" r="5" fill="#fff" opacity="0.95" />
+            <ellipse cx="50" cy="124" rx="34" ry="3" fill="rgba(67,43,29,0.18)" />
+          </svg>
         </div>
-        <div className="mt-7 grid gap-3">
+
+        {/* Spieler-Reihen */}
+        <div className="relative mt-6 grid gap-2.5">
           {[
-            { name: "Spieler 1", value: 340, status: "+2 SP", fill: "w-3/5", tone: "bg-orangeBeer" },
-            { name: "Spieler 2", value: 310, status: "Ansager", fill: "w-4/5", tone: "bg-amberBeer" },
-            { name: "Spieler 3", value: 289, status: "Treffer", fill: "w-full", tone: "bg-hop" }
+            { name: "Spieler 1", value: 340, status: "+2 SP", fill: 0.55, tone: "bg-orangeBeer" },
+            { name: "Spieler 2", value: 310, status: "Ansager", fill: 0.75, tone: "bg-amberBeer" },
+            { name: "Spieler 3", value: 289, status: "Treffer", fill: 0.95, tone: "bg-hop" }
           ].map((row) => (
             <div
               key={row.name}
               className={clsx(
-                "rounded-xl border p-3",
-                dark ? "border-nightBorder bg-nightSurface2" : "border-[#ead9b9] bg-foam"
+                "rounded-2xl border-2 p-3 transition",
+                row.status === "Treffer"
+                  ? "border-hop/50 bg-hop/10"
+                  : dark
+                  ? "border-brassLight/15 bg-nightSurface2/80"
+                  : "border-malt/10 bg-foam/85"
               )}
             >
               <div className="flex items-center justify-between gap-3">
-                <div>
-                  <div className={clsx("text-xs font-black uppercase", dark ? "text-nightMuted" : "text-malt/55")}>{row.name}</div>
-                  <div className={clsx("mt-1 text-2xl font-black leading-none", dark && "text-nightText")}>{row.value} g</div>
+                <div className="min-w-0">
+                  <div
+                    className={clsx(
+                      "text-[0.65rem] font-black uppercase tracking-wider",
+                      dark ? "text-brassLight/60" : "text-malt/55"
+                    )}
+                  >
+                    {row.name}
+                  </div>
+                  <div
+                    className={clsx(
+                      "mt-1 text-2xl font-black leading-none",
+                      dark ? "text-brassLight" : "text-malt"
+                    )}
+                  >
+                    {row.value} g
+                  </div>
                 </div>
                 <div
                   className={clsx(
-                    "rounded-lg px-2.5 py-1 text-xs font-black uppercase",
+                    "rounded-full px-2.5 py-1 text-[0.65rem] font-black uppercase tracking-wider shadow-sm",
                     row.status === "Treffer"
                       ? "bg-hop text-white"
                       : row.status === "Ansager"
-                      ? "bg-goldBeer text-malt"
+                      ? "brass-pill"
                       : dark
                       ? "bg-red-900/40 text-red-300"
                       : "bg-dangerSoft text-red-700"
@@ -1977,20 +2124,47 @@ function HomeScreen({
                   {row.status}
                 </div>
               </div>
-              <div className={clsx("mt-3 h-2 overflow-hidden rounded-full", dark ? "bg-nightBg" : "bg-[#ead9b9]")}>
-                <div className={clsx("h-full rounded-full", row.fill, row.tone)} />
+              <div
+                className={clsx(
+                  "mt-3 h-2 overflow-hidden rounded-full",
+                  dark ? "bg-nightBg" : "bg-[#ead9b9]"
+                )}
+              >
+                <div
+                  className={clsx("h-full rounded-full transition-all", row.tone)}
+                  style={{ width: `${Math.round(row.fill * 100)}%` }}
+                />
               </div>
             </div>
           ))}
         </div>
-        <div className={clsx("mt-5 grid grid-cols-3 gap-3 text-center", dark ? "text-nightText" : "text-malt")}>
+
+        <div
+          className={clsx(
+            "relative mt-5 grid grid-cols-3 gap-2 text-center",
+            dark ? "text-brassLight" : "text-malt"
+          )}
+        >
           {[
             ["Spieler", "3"],
             ["Fortschritt", "100%"],
             ["Treffer", "1"]
           ].map(([label, value]) => (
-            <div key={label} className={clsx("rounded-xl border px-3 py-2", dark ? "border-nightBorder bg-nightBg" : "border-[#ead9b9] bg-white/70")}>
-              <div className={clsx("text-[0.65rem] font-black uppercase", dark ? "text-nightMuted" : "text-malt/50")}>{label}</div>
+            <div
+              key={label}
+              className={clsx(
+                "rounded-xl border-2 px-3 py-2",
+                dark ? "border-brassLight/15 bg-nightBg" : "border-malt/10 bg-white/80"
+              )}
+            >
+              <div
+                className={clsx(
+                  "text-[0.62rem] font-black uppercase tracking-wider",
+                  dark ? "text-brassLight/60" : "text-malt/50"
+                )}
+              >
+                {label}
+              </div>
               <div className="mt-1 text-xl font-black">{value}</div>
             </div>
           ))}
