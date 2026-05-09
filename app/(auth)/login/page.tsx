@@ -126,7 +126,7 @@ function LoginPageInner() {
               type="button"
               onClick={sendMagicLink}
               disabled={loading !== "none" || !email}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl border-2 border-malt/15 bg-white/70 px-4 font-black text-malt active:scale-95 disabled:opacity-50 dark:border-brassLight/15 dark:bg-nightSurface2/70 dark:text-nightText"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl border-2 border-malt/15 bg-white/70 px-4 font-black text-malt active:scale-95 disabled:opacity-50 dark:border-nightBorder dark:bg-nightSurface2/70 dark:text-nightText"
             >
               <Mail className="size-4" />
               {loading === "magic" ? "Sende Link..." : "Magic-Link an E-Mail"}
@@ -145,14 +145,14 @@ function LoginPageInner() {
           <button
             onClick={() => oauth("google")}
             disabled={loading !== "none"}
-            className="flex h-12 items-center justify-center gap-2 rounded-2xl border-2 border-malt/15 bg-white font-black text-malt active:scale-95 disabled:opacity-50 dark:border-brassLight/15 dark:bg-nightSurface2 dark:text-nightText"
+            className="flex h-12 items-center justify-center gap-2 rounded-2xl border-2 border-malt/15 bg-white font-black text-malt active:scale-95 disabled:opacity-50 dark:border-nightBorder dark:bg-nightSurface2 dark:text-nightText"
           >
             Google
           </button>
           <button
             onClick={() => oauth("apple")}
             disabled={loading !== "none"}
-            className="flex h-12 items-center justify-center gap-2 rounded-2xl border-2 border-malt/15 bg-white font-black text-malt active:scale-95 disabled:opacity-50 dark:border-brassLight/15 dark:bg-nightSurface2 dark:text-nightText"
+            className="flex h-12 items-center justify-center gap-2 rounded-2xl border-2 border-malt/15 bg-white font-black text-malt active:scale-95 disabled:opacity-50 dark:border-nightBorder dark:bg-nightSurface2 dark:text-nightText"
           >
             Apple
           </button>

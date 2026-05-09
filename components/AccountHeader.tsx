@@ -137,20 +137,20 @@ export default function AccountHeader() {
       <div
         className={clsx(
           "border-b border-white/40 bg-foam/85 shadow-sm backdrop-blur-xl",
-          "dark:border-nightBorder dark:bg-stout/85"
+          "dark:border-nightBorder dark:bg-nightBg/85"
         )}
       >
         <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-3 px-3 py-2 sm:px-5">
           <Link
             href="/"
             onClick={() => play("tap")}
-            className="group inline-flex items-center gap-2.5 text-lg font-black text-malt dark:text-goldHigh"
+            className="group inline-flex items-center gap-2.5 text-lg font-black text-malt dark:text-white"
           >
             <span className="grid size-10 place-items-center rounded-full bg-orange text-white shadow-md">
               <Beer className="size-5" />
             </span>
             <span className="hidden flex-col leading-none sm:flex">
-              <span className="text-[0.55rem] font-black uppercase tracking-[0.25em] text-malt/55 dark:text-brassLight/70">
+              <span className="text-[0.55rem] font-black uppercase tracking-[0.25em] text-malt/55 dark:text-nightMuted">
                 Premium Trinkspiel
               </span>
               <span className="text-xl font-semibold text-malt dark:text-nightText">Bierwiegen</span>
@@ -168,7 +168,7 @@ export default function AccountHeader() {
               onClick={toggleSound}
               title={sound ? "Sound aus" : "Sound an"}
               aria-label={sound ? "Sound stummschalten" : "Sound aktivieren"}
-              className="grid size-10 place-items-center rounded-full border border-malt/15 bg-white/60 text-malt shadow-sm transition hover:bg-white active:scale-95 dark:border-brassLight/15 dark:bg-nightSurface2/60 dark:text-brassLight"
+              className="grid size-10 place-items-center rounded-full border border-malt/15 bg-white/60 text-malt shadow-sm transition hover:bg-white active:scale-95 dark:border-nightBorder dark:bg-nightSurface2/60 dark:text-nightMuted"
             >
               {sound ? <Volume2 className="size-4" /> : <VolumeX className="size-4 opacity-60" />}
             </button>
@@ -176,7 +176,7 @@ export default function AccountHeader() {
               onClick={toggleTheme}
               title={theme === "dark" ? "Hellmodus" : "Nachtmodus"}
               aria-label="Theme wechseln"
-              className="grid size-10 place-items-center rounded-full border border-malt/15 bg-white/60 text-malt shadow-sm transition hover:bg-white active:scale-95 dark:border-brassLight/15 dark:bg-nightSurface2/60 dark:text-brassLight"
+              className="grid size-10 place-items-center rounded-full border border-malt/15 bg-white/60 text-malt shadow-sm transition hover:bg-white active:scale-95 dark:border-nightBorder dark:bg-nightSurface2/60 dark:text-nightMuted"
             >
               {theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
             </button>
@@ -196,7 +196,7 @@ export default function AccountHeader() {
                 onClick={logout}
                 title="Logout"
                 aria-label="Abmelden"
-                className="grid size-10 place-items-center rounded-full border border-malt/15 bg-white/60 text-malt shadow-sm transition hover:bg-white active:scale-95 dark:border-brassLight/15 dark:bg-nightSurface2/60 dark:text-nightText"
+                className="grid size-10 place-items-center rounded-full border border-malt/15 bg-white/60 text-malt shadow-sm transition hover:bg-white active:scale-95 dark:border-nightBorder dark:bg-nightSurface2/60 dark:text-nightText"
               >
                 <LogOut className="size-4" />
               </button>

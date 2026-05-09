@@ -119,7 +119,7 @@ export default function NewGamePage() {
         <section className="coaster px-4 py-3 sm:px-6 sm:py-4">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <div className="text-xs font-medium uppercase tracking-widest text-malt/55 dark:text-brassLight/60">
+              <div className="text-xs font-medium uppercase tracking-widest text-malt/55 dark:text-nightMuted">
                 Neue Runde an der Theke
               </div>
               <h1 className="text-2xl font-semibold text-malt dark:text-nightText sm:text-3xl">Neues Online-Spiel</h1>
@@ -255,7 +255,7 @@ export default function NewGamePage() {
               </button>
             </div>
             {guests.length === 0 ? (
-              <div className="flex flex-1 items-center justify-center rounded-xl border-2 border-dashed border-malt/15 bg-foam/40 p-3 text-center text-xs font-bold text-malt/55 dark:border-brassLight/15 dark:bg-nightBg/40">
+              <div className="flex flex-1 items-center justify-center rounded-xl border-2 border-dashed border-malt/15 bg-foam/40 p-3 text-center text-xs font-bold text-malt/55 dark:border-nightBorder dark:bg-nightBg/40">
                 Account-Spieler kannst du in der Lobby einladen, Gäste hier hinzufügen.
               </div>
             ) : (

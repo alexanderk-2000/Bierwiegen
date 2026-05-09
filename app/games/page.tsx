@@ -54,7 +54,7 @@ export default function GamesPage() {
         <section className="coaster px-4 py-3 sm:px-6 sm:py-4">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <div className="text-xs font-medium uppercase tracking-widest text-malt/55 dark:text-brassLight/60">
+              <div className="text-xs font-medium uppercase tracking-widest text-malt/55 dark:text-nightMuted">
                 Deine Theke
               </div>
               <h1 className="text-2xl font-semibold text-malt dark:text-nightText sm:text-3xl">Meine Spiele</h1>
@@ -120,7 +120,7 @@ function Section({
         </span>
       </div>
       {games.length === 0 ? (
-        <div className="flex flex-1 items-center justify-center rounded-xl border-2 border-dashed border-malt/15 bg-foam/40 p-3 text-center text-xs font-bold text-malt/50 dark:border-brassLight/15 dark:bg-nightBg/40">
+        <div className="flex flex-1 items-center justify-center rounded-xl border-2 border-dashed border-malt/15 bg-foam/40 p-3 text-center text-xs font-bold text-malt/50 dark:border-nightBorder dark:bg-nightBg/40">
           {empty}
         </div>
       ) : (
