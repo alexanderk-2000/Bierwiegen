@@ -51,13 +51,13 @@ export default function GamesPage() {
     <div className="flex h-dvh flex-col">
       <AccountHeader />
       <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-3 overflow-hidden px-3 py-3 sm:px-5">
-        <section className="coaster coaster-rim spotlight px-4 py-3 sm:px-6 sm:py-4">
+        <section className="coaster px-4 py-3 sm:px-6 sm:py-4">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <div className="text-[0.6rem] font-black uppercase tracking-[0.25em] text-malt/55 dark:text-brassLight/60">
+              <div className="text-xs font-medium uppercase tracking-widest text-malt/55 dark:text-brassLight/60">
                 Deine Theke
               </div>
-              <h1 className="gold-text bg-clip-text text-2xl font-black sm:text-3xl">Meine Spiele</h1>
+              <h1 className="text-2xl font-semibold text-malt dark:text-nightText sm:text-3xl">Meine Spiele</h1>
               <p className="text-xs font-bold text-malt/65 dark:text-nightMuted">
                 {games.length} Runden insgesamt · {groups.playing.length} laufen gerade
               </p>
@@ -65,7 +65,7 @@ export default function GamesPage() {
             <Link
               href="/games/new"
               onClick={() => play("tap")}
-              className="brass-pill cta-pulse inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-black active:scale-95"
+              className="brass-pill inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-medium active:scale-95"
             >
               <Plus className="size-4" />
               Neues Spiel
@@ -110,10 +110,10 @@ function Section({
       <div className="mb-2 flex items-center justify-between">
         <h2 className="text-xs font-black uppercase tracking-wider text-malt/55 dark:text-nightMuted">{title}</h2>
         <span
-          className={`rounded-full px-2 py-0.5 text-[0.6rem] font-black ${
+          className={`rounded-full px-2 py-0.5 text-[0.6rem] font-medium ${
             accent === "amber"
-              ? "brass-pill"
-              : "bg-cream text-malt dark:bg-nightSurface2 dark:text-nightText"
+              ? "bg-orange text-white"
+              : "bg-black/5 text-malt dark:bg-white/5 dark:text-nightText"
           }`}
         >
           {games.length}

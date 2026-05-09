@@ -116,13 +116,13 @@ export default function NewGamePage() {
     <div className="flex h-dvh flex-col">
       <AccountHeader />
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-3 overflow-hidden px-3 py-3 sm:px-5">
-        <section className="coaster coaster-rim spotlight px-4 py-3 sm:px-6 sm:py-4">
+        <section className="coaster px-4 py-3 sm:px-6 sm:py-4">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <div className="text-[0.6rem] font-black uppercase tracking-[0.25em] text-malt/55 dark:text-brassLight/60">
+              <div className="text-xs font-medium uppercase tracking-widest text-malt/55 dark:text-brassLight/60">
                 Neue Runde an der Theke
               </div>
-              <h1 className="gold-text bg-clip-text text-2xl font-black sm:text-3xl">Neues Online-Spiel</h1>
+              <h1 className="text-2xl font-semibold text-malt dark:text-nightText sm:text-3xl">Neues Online-Spiel</h1>
               <p className="text-xs font-bold text-malt/65 dark:text-nightMuted">
                 Setze die Theke. Spieler kannst du jederzeit in der Lobby nachladen.
               </p>
@@ -165,9 +165,9 @@ export default function NewGamePage() {
                         setHostBeer(brand);
                         play("tap");
                       }}
-                      className={`rounded-full px-3 py-1 text-xs font-black transition active:scale-95 ${
+                      className={`rounded-full px-3 py-1 text-xs font-medium transition active:scale-95 ${
                         hostBeer === brand
-                          ? "brass-pill"
+                          ? "bg-orange text-white"
                           : "bg-cream/70 text-malt hover:bg-cream dark:bg-nightSurface2/70 dark:text-nightText"
                       }`}
                     >
@@ -194,9 +194,9 @@ export default function NewGamePage() {
                             setHostBottle(size);
                             play("tap");
                           }}
-                          className={`flex-1 rounded-xl px-2 py-2 text-sm font-black transition active:scale-95 ${
+                          className={`flex-1 rounded-xl px-2 py-2 text-sm font-medium transition active:scale-95 ${
                             hostBottle === size
-                              ? "brass-pill"
+                              ? "bg-orange text-white"
                               : "bg-cream/70 text-malt dark:bg-nightSurface2/70 dark:text-nightText"
                           }`}
                         >
@@ -230,7 +230,7 @@ export default function NewGamePage() {
             <button
               onClick={submit}
               disabled={submitting}
-              className="brass-pill cta-pulse mt-auto inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-base font-black active:scale-95 disabled:opacity-50"
+              className="brass-pill mt-auto inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-base font-medium active:scale-95 disabled:opacity-50"
             >
               {submitting ? "Erstelle…" : "Spiel erstellen"}
               <ArrowRight className="size-4" />
@@ -248,7 +248,7 @@ export default function NewGamePage() {
                   setGuests((current) => [...current, newDraft()]);
                   play("click");
                 }}
-                className="brass-pill inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-black active:scale-95"
+                className="brass-pill inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium active:scale-95"
               >
                 <Plus className="size-3" />
                 Gast

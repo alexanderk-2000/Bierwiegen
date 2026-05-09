@@ -39,8 +39,8 @@ export default function ResetPasswordPage() {
         <ArrowLeft className="size-4" />
         Zurück zum Login
       </Link>
-      <div className="coaster coaster-rim p-6 phase-enter">
-        <h1 className="gold-text bg-clip-text text-3xl font-black">Passwort zurücksetzen</h1>
+      <div className="coaster p-6 phase-enter">
+        <h1 className="text-3xl font-semibold text-malt dark:text-nightText">Passwort zurücksetzen</h1>
         <p className="mt-1 text-sm font-bold text-malt/65 dark:text-nightMuted">
           Wir schicken dir einen Reset-Link per E-Mail.
         </p>
@@ -64,7 +64,7 @@ export default function ResetPasswordPage() {
             <button
               type="submit"
               disabled={loading || !email}
-              className="brass-pill cta-pulse inline-flex h-14 items-center justify-center gap-3 rounded-2xl px-6 text-lg font-black disabled:opacity-50"
+              className="brass-pill inline-flex h-14 items-center justify-center gap-3 rounded-2xl px-6 text-lg font-medium disabled:opacity-50"
             >
               {loading ? "Sende..." : "Reset-Link senden"}
               <ArrowRight className="size-5" />
