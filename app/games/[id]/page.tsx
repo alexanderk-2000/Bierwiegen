@@ -149,6 +149,10 @@ export default function GamePage() {
     if (activeRound) setTab("play");
   }, [activeRound]);
 
+  useEffect(() => {
+    if (game?.status === "ended") setTab("lobby");
+  }, [game?.status]);
+
   // FX bei Review-Zustand: Volltreffer-Burst + Sounds
   useEffect(() => {
     if (!activeRound) return;
@@ -416,6 +420,8 @@ export default function GamePage() {
             onInviteByEmail={doInviteByEmail}
             onCreateInviteLink={doCreateInviteLink}
             onEmailChange={setEmailInvite}
+            isEnded={game.status === "ended"}
+            onArchive={() => setModalConfig({ type: "archive" })}
             onStartRound={doStartRound}
             onStartEmpty={async () => setModalConfig({ type: "startEmpty" })}
             onAddGuest={doAddGuest}
@@ -507,6 +513,8 @@ function LobbyView({
   onInviteByEmail,
   onCreateInviteLink,
   onEmailChange,
+  isEnded,
+  onArchive,
   onStartRound,
   onStartEmpty,
   onAddGuest,
@@ -535,6 +543,8 @@ function LobbyView({
   onInviteByEmail: () => Promise<void>;
   onCreateInviteLink: () => Promise<void>;
   onEmailChange: (email: string) => void;
+  isEnded: boolean;
+  onArchive: () => void;
   onStartRound: () => Promise<void>;
   onStartEmpty: () => Promise<void>;
   onAddGuest: () => Promise<void>;
@@ -542,6 +552,52 @@ function LobbyView({
 }) {
   return (
     <div className="grid flex-1 gap-2 overflow-hidden phase-enter lg:grid-cols-[1fr_320px]">
+      {isEnded && (
+        <section className="coaster col-span-full p-4 phase-enter">
+          <div className="mb-3 flex items-center gap-2">
+            <Crown className="size-5 text-orange" />
+            <h2 className="text-lg font-semibold text-malt dark:text-nightText">Spielende</h2>
+          </div>
+          <div className="mb-4 grid gap-1.5">
+            {[...players]
+              .sort((a, b) => a.penalty_points - b.penalty_points)
+              .map((player, index) => (
+                <div
+                  key={player.id}
+                  className={`flex items-center justify-between rounded-xl px-3 py-2 ${
+                    index === 0
+                      ? "border border-orange/40 bg-orange/10"
+                      : "bg-cream/80 dark:bg-nightSurface2/80"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    {index === 0 && <Crown className="size-4 text-orange" />}
+                    <span className="text-sm font-semibold text-malt dark:text-nightText">
+                      {index + 1}. {player.display_name}
+                    </span>
+                  </div>
+                  <span className="text-sm font-bold text-wine">{player.penalty_points} Pkt.</span>
+                </div>
+              ))}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={onArchive}
+              className="brass-pill inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium active:scale-95"
+            >
+              Archivieren
+            </button>
+            <Link
+              href="/games"
+              onClick={() => play("tap")}
+              className="inline-flex items-center gap-2 rounded-full border border-malt/20 px-4 py-2.5 text-sm font-medium text-malt/75 transition hover:-translate-y-0.5 active:scale-95 dark:border-nightBorder dark:text-nightMuted"
+            >
+              ← Zur Spielliste
+            </Link>
+          </div>
+        </section>
+      )}
       {/* Spielerliste mit Krug-Avataren */}
       <section className="coaster flex h-full flex-col p-3">
         <h2 className="mb-2 text-[0.65rem] font-black uppercase tracking-wider text-malt/55 dark:text-nightMuted">
