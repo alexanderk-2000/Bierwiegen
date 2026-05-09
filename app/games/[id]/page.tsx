@@ -365,7 +365,7 @@ export default function GamePage() {
             {isHost && game.status !== "ended" && game.status !== "archived" && (
               <button
                 onClick={doEndGame}
-                className="rounded-full bg-malt px-3 py-1.5 text-xs font-black text-goldHigh shadow active:scale-95 dark:bg-nightSurface2 dark:text-brassLight"
+                className="rounded-full bg-malt px-3 py-1.5 text-xs font-black text-white shadow active:scale-95 dark:bg-nightSurface2 dark:text-orange"
               >
                 Beenden
               </button>
@@ -582,7 +582,7 @@ function LobbyView({
             </div>
             <div className="grid gap-1">
               <div className="flex items-center gap-1.5">
-                <UserPlus className="size-3.5 text-malt/55 dark:text-brassLight/55" />
+                <UserPlus className="size-3.5 text-malt/55 dark:text-orange/55" />
                 <input
                   value={searchQuery}
                   onChange={(event) => onSearchProfiles(event.target.value)}
@@ -606,7 +606,7 @@ function LobbyView({
               )}
             </div>
             <div className="flex items-center gap-1.5">
-              <Mail className="size-3.5 text-malt/55 dark:text-brassLight/55" />
+              <Mail className="size-3.5 text-malt/55 dark:text-orange/55" />
               <input
                 type="email"
                 value={emailInvite}
@@ -624,7 +624,7 @@ function LobbyView({
             </div>
             <button
               onClick={onCreateInviteLink}
-              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-malt px-3 py-2 text-xs font-black text-goldHigh shadow active:scale-95 dark:bg-nightSurface2 dark:text-brassLight"
+              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-malt px-3 py-2 text-xs font-black text-white shadow active:scale-95 dark:bg-nightSurface2 dark:text-orange"
             >
               <Copy className="size-3.5" />
               Einladungslink
@@ -665,7 +665,7 @@ function LobbyView({
         {isHost && game.status !== "ended" && players.length >= 2 && !activeRound && (
           <section className="coaster relative flex flex-1 flex-col overflow-hidden p-3">
             <div className="absolute inset-x-0 top-0 h-[3px] bg-[var(--bar-rim)] opacity-90" />
-            <h3 className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-wider text-malt dark:text-brassLight">
+            <h3 className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-wider text-malt dark:text-orange">
               <Target className="size-3.5" />
               Runde {rounds.length + 1}
             </h3>
@@ -699,7 +699,7 @@ function LobbyView({
             <button
               onClick={onStartEmpty}
               disabled={busy}
-              className="mt-1.5 inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-full bg-malt text-xs font-black text-goldHigh shadow active:scale-95 disabled:opacity-40 dark:bg-nightSurface2 dark:text-brassLight"
+              className="mt-1.5 inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-full bg-malt text-xs font-black text-white shadow active:scale-95 disabled:opacity-40 dark:bg-nightSurface2 dark:text-orange"
             >
               <Coins className="size-3.5" />
               Leer trinken (Finale)
@@ -761,7 +761,7 @@ function PlayPanel({
 
   if (!activeRound) {
     return (
-      <div className="phase-enter flex flex-1 items-center justify-center rounded-2xl border-2 border-dashed border-malt/15 bg-foam/40 dark:border-brassLight/15 dark:bg-nightSurface/40">
+      <div className="phase-enter flex flex-1 items-center justify-center rounded-2xl border-2 border-dashed border-malt/15 bg-foam/40 dark:border-orange/15 dark:bg-nightSurface/40">
         <p className="text-center font-bold text-malt/65 dark:text-nightMuted">
           Keine aktive Runde. Starte eine in der Lobby.
         </p>
@@ -793,10 +793,10 @@ function PlayPanel({
           <Burst trigger={hitBurst || null} variant="confetti" count={90} origin={{ x: 0.5, y: 0.4 }} />
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-[0.6rem] font-black uppercase tracking-[0.25em] text-malt/55 dark:text-brassLight/60">
+              <div className="text-[0.6rem] font-black uppercase tracking-[0.25em] text-malt/55 dark:text-nightMuted">
                 Runde {activeRound.round_number} · {reviewing ? "Auswertung" : activeRound.type === "empty_finish" ? "Finale" : "Wiegen"}
               </div>
-              <div className="text-xl font-black text-malt dark:text-brassLight sm:text-2xl">
+              <div className="text-xl font-black text-malt dark:text-orange sm:text-2xl">
                 {activeRound.type === "empty_finish" ? (
                   <span>Leer trinken!</span>
                 ) : (
@@ -867,7 +867,7 @@ function PlayPanel({
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
                     {m ? (
-                      <span className="text-2xl font-black text-malt dark:text-brassLight">{grams(Number(m.weight))}</span>
+                      <span className="text-2xl font-black text-malt dark:text-orange">{grams(Number(m.weight))}</span>
                     ) : (
                       isHost && (
                         <input
@@ -923,7 +923,7 @@ function PlayPanel({
       <aside className="flex h-full flex-col overflow-hidden">
         {reviewing && exactHits.length > 0 ? (
           <section className="coaster flex h-full flex-col p-3">
-            <h3 className="text-[0.65rem] font-black uppercase tracking-wider text-malt dark:text-brassLight">
+            <h3 className="text-[0.65rem] font-black uppercase tracking-wider text-malt dark:text-orange">
               Volltreffer-Punkte verteilen
             </h3>
             <div className="scroll-vintage mt-2 grid flex-1 gap-2 overflow-y-auto pr-1">
