@@ -18,6 +18,7 @@ import {
 import AccountHeader from "@/components/AccountHeader";
 import BeerMug from "@/components/fx/BeerMug";
 import Burst from "@/components/fx/Burst";
+import ConfirmModal from "@/components/ConfirmModal";
 import { useUser } from "@/lib/auth/use-user";
 import { getGame, archiveGame } from "@/lib/db/games";
 import { addGuestPlayer, removePlayer, searchProfiles, updatePlayer } from "@/lib/db/players";
@@ -42,6 +43,12 @@ type PlayerRow = Database["public"]["Tables"]["game_players"]["Row"];
 type RoundRow = Database["public"]["Tables"]["rounds"]["Row"];
 type MeasurementRow = Database["public"]["Tables"]["measurements"]["Row"];
 type InvitationRow = Database["public"]["Tables"]["invitations"]["Row"];
+
+type ModalConfig =
+  | { type: "endGame" }
+  | { type: "archive" }
+  | { type: "removePlayer"; playerId: string }
+  | { type: "startEmpty" };
 
 const grams = (value: number | null | undefined) =>
   value !== null && value !== undefined ? `${Math.round(value)} g` : "—";
@@ -71,6 +78,7 @@ export default function GamePage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<"play" | "lobby">("lobby");
+  const [modalConfig, setModalConfig] = useState<ModalConfig | null>(null);
 
   const [callerId, setCallerId] = useState("");
   const [targetWeight, setTargetWeight] = useState("");
@@ -208,7 +216,6 @@ export default function GamePage() {
   };
 
   const doStartEmpty = async () => {
-    if (!confirm("Finale Runde starten? Danach trinken alle leer und das Spiel endet.")) return;
     setBusy(true);
     play("coin");
     try {
@@ -272,13 +279,11 @@ export default function GamePage() {
   };
 
   const doEndGame = async () => {
-    if (!confirm("Spiel beenden?")) return;
     play("warn");
     await endGame(game.id);
   };
 
   const doArchive = async () => {
-    if (!confirm("Spiel archivieren?")) return;
     await archiveGame(game.id);
     router.push("/games");
   };
@@ -329,7 +334,6 @@ export default function GamePage() {
   };
 
   const doRemovePlayer = async (playerId: string) => {
-    if (!confirm("Spieler entfernen?")) return;
     await removePlayer(playerId);
   };
 
@@ -364,7 +368,7 @@ export default function GamePage() {
             </div>
             {isHost && game.status !== "ended" && game.status !== "archived" && (
               <button
-                onClick={doEndGame}
+                onClick={() => setModalConfig({ type: "endGame" })}
                 className="rounded-full bg-malt px-3 py-1.5 text-xs font-black text-white shadow active:scale-95 dark:bg-nightSurface2 dark:text-orange"
               >
                 Beenden
@@ -372,7 +376,7 @@ export default function GamePage() {
             )}
             {game.status === "ended" && isHost && (
               <button
-                onClick={doArchive}
+                onClick={() => setModalConfig({ type: "archive" })}
                 className="rounded-full bg-cream px-3 py-1.5 text-xs font-black text-malt active:scale-95 dark:bg-nightSurface2 dark:text-nightText"
               >
                 Archivieren
@@ -413,9 +417,9 @@ export default function GamePage() {
             onCreateInviteLink={doCreateInviteLink}
             onEmailChange={setEmailInvite}
             onStartRound={doStartRound}
-            onStartEmpty={doStartEmpty}
+            onStartEmpty={async () => setModalConfig({ type: "startEmpty" })}
             onAddGuest={doAddGuest}
-            onRemovePlayer={doRemovePlayer}
+            onRemovePlayer={async (id) => setModalConfig({ type: "removePlayer", playerId: id })}
           />
         ) : (
           <PlayPanel
@@ -442,6 +446,36 @@ export default function GamePage() {
           />
         )}
       </main>
+      <ConfirmModal
+        open={modalConfig !== null}
+        title={
+          modalConfig?.type === "endGame" ? "Spiel beenden?" :
+          modalConfig?.type === "archive" ? "Spiel archivieren?" :
+          modalConfig?.type === "removePlayer" ? "Spieler entfernen?" :
+          "Finale Runde starten?"
+        }
+        description={
+          modalConfig?.type === "endGame" ? "Alle Spieler sehen danach den Endstand." :
+          modalConfig?.type === "archive" ? "Das Spiel wird ins Archiv verschoben." :
+          modalConfig?.type === "startEmpty" ? "Danach trinken alle leer und das Spiel endet." :
+          undefined
+        }
+        confirmLabel={
+          modalConfig?.type === "endGame" ? "Beenden" :
+          modalConfig?.type === "archive" ? "Archivieren" :
+          modalConfig?.type === "removePlayer" ? "Entfernen" :
+          "Starten"
+        }
+        danger={modalConfig?.type === "endGame" || modalConfig?.type === "removePlayer"}
+        onConfirm={async () => {
+          if (modalConfig?.type === "endGame") await doEndGame();
+          else if (modalConfig?.type === "archive") await doArchive();
+          else if (modalConfig?.type === "removePlayer") await doRemovePlayer(modalConfig.playerId);
+          else if (modalConfig?.type === "startEmpty") await doStartEmpty();
+          setModalConfig(null);
+        }}
+        onCancel={() => setModalConfig(null)}
+      />
     </div>
   );
 }
