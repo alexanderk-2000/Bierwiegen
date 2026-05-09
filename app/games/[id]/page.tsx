@@ -343,7 +343,7 @@ export default function GamePage() {
 
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-2 overflow-hidden px-3 py-2 sm:px-5">
         {/* Game Header */}
-        <header className="coaster coaster-rim spotlight relative flex flex-wrap items-center justify-between gap-2 px-3 py-2.5 sm:px-5">
+        <header className="coaster relative flex flex-wrap items-center justify-between gap-2 px-3 py-2.5 sm:px-5">
           <div className="min-w-0">
             <Link
               href="/games"
@@ -352,7 +352,7 @@ export default function GamePage() {
             >
               ← Spiele
             </Link>
-            <h1 className="gold-text bg-clip-text truncate text-2xl font-black sm:text-3xl">{game.name}</h1>
+            <h1 className="truncate text-2xl font-semibold text-malt dark:text-nightText sm:text-3xl">{game.name}</h1>
             <div className="text-[0.65rem] font-bold uppercase tracking-wider text-malt/55 dark:text-nightMuted">
               {game.status} · {players.length} Spieler · Runde {rounds.length}
             </div>
@@ -533,7 +533,7 @@ function LobbyView({
                   <div className="flex items-center gap-1.5 truncate text-sm font-black text-malt dark:text-nightText">
                     {player.display_name}
                     {player.role === "host" && (
-                      <span className="brass-pill rounded-full px-1.5 py-0.5 text-[0.55rem] font-black uppercase">
+                      <span className="rounded-full bg-orange px-1.5 py-0.5 text-[0.55rem] font-medium uppercase text-white">
                         Host
                       </span>
                     )}
@@ -575,7 +575,7 @@ function LobbyView({
               <button
                 onClick={onAddGuest}
                 disabled={!guestName.trim()}
-                className="brass-pill grid size-9 place-items-center rounded-full active:scale-95 disabled:opacity-40"
+                className="grid size-9 place-items-center rounded-full bg-orange text-white active:scale-95 disabled:opacity-40"
               >
                 <Plus className="size-4" />
               </button>
@@ -617,7 +617,7 @@ function LobbyView({
               <button
                 onClick={onInviteByEmail}
                 disabled={!emailInvite.trim()}
-                className="brass-pill grid size-9 place-items-center rounded-full active:scale-95 disabled:opacity-40"
+                className="grid size-9 place-items-center rounded-full bg-orange text-white active:scale-95 disabled:opacity-40"
               >
                 <Plus className="size-4" />
               </button>
@@ -691,7 +691,7 @@ function LobbyView({
             <button
               onClick={onStartRound}
               disabled={busy || !callerId || !targetWeight}
-              className="brass-pill cta-pulse mt-2 inline-flex h-12 w-full items-center justify-center gap-1.5 rounded-full text-sm font-black active:scale-95 disabled:opacity-40"
+              className="brass-pill mt-2 inline-flex h-12 w-full items-center justify-center gap-1.5 rounded-full text-sm font-medium active:scale-95 disabled:opacity-40"
             >
               Anstoßen
               <ArrowRight className="size-4" />
@@ -719,7 +719,7 @@ function TabBtn({ active, onClick, label }: { active: boolean; onClick: () => vo
         onClick();
       }}
       className={`rounded-full px-3 py-1 text-xs font-black transition active:scale-95 ${
-        active ? "brass-pill" : "text-malt/65 dark:text-nightMuted"
+        active ? "bg-orange text-white" : "text-malt/65 dark:text-nightMuted"
       }`}
     >
       {label}
@@ -788,7 +788,7 @@ function PlayPanel({
       {/* Spieler-Liste */}
       <section className="flex h-full flex-col gap-2 overflow-hidden">
         {/* Phase-Header */}
-        <div className="coaster coaster-rim spotlight relative overflow-hidden px-4 py-3">
+        <div className="coaster relative overflow-hidden px-4 py-3">
           {/* Konfetti bei Volltreffer */}
           <Burst trigger={hitBurst || null} variant="confetti" count={90} origin={{ x: 0.5, y: 0.4 }} />
           <div className="flex items-center justify-between">
@@ -801,14 +801,14 @@ function PlayPanel({
                   <span>Leer trinken!</span>
                 ) : (
                   <span>
-                    Ziel <span className="gold-text bg-clip-text">{grams(activeRound.target_weight)}</span> · Ansager{" "}
-                    <span className="gold-text bg-clip-text">{callerName}</span>
+                    Ziel <span className="font-semibold text-orange">{grams(activeRound.target_weight)}</span> · Ansager{" "}
+                    <span className="font-semibold text-orange">{callerName}</span>
                   </span>
                 )}
               </div>
             </div>
             <div className="hidden items-center gap-2 sm:flex">
-              <Crown className="size-4 text-amberBeer candle-flicker" />
+              <Crown className="size-4 text-orange" />
               <span className="text-xs font-black uppercase text-malt/55 dark:text-nightMuted">
                 {measurements.length}/{players.length}
               </span>
@@ -848,7 +848,7 @@ function PlayPanel({
                       <div className="flex items-center gap-1.5 truncate text-sm font-black text-malt dark:text-nightText">
                         {player.display_name}
                         {isCaller && (
-                          <span className="brass-pill rounded-full px-1.5 py-0.5 text-[0.55rem] font-black uppercase">
+                          <span className="rounded-full bg-orange px-1.5 py-0.5 text-[0.55rem] font-medium uppercase text-white">
                             Ansager
                           </span>
                         )}
@@ -901,7 +901,7 @@ function PlayPanel({
               <button
                 onClick={onEvaluate}
                 disabled={busy}
-                className="brass-pill cta-pulse inline-flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-3 text-base font-black active:scale-95"
+                className="brass-pill inline-flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-3 text-base font-medium active:scale-95"
               >
                 Auswerten
               </button>
@@ -910,7 +910,7 @@ function PlayPanel({
               <button
                 onClick={onComplete}
                 disabled={busy}
-                className="brass-pill cta-pulse inline-flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-3 text-base font-black active:scale-95"
+                className="brass-pill inline-flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-3 text-base font-medium active:scale-95"
               >
                 Punkte übernehmen
               </button>
@@ -934,7 +934,7 @@ function PlayPanel({
                   <div key={hit.id} className="rounded-2xl bg-foam p-2.5 dark:bg-nightSurface">
                     <div className="flex items-center justify-between">
                       <div className="text-sm font-black text-malt dark:text-nightText">{giver?.display_name}</div>
-                      <span className="brass-pill rounded-full px-2 py-0.5 text-[0.6rem] font-black">{left}</span>
+                      <span className="rounded-full bg-orange px-2 py-0.5 text-[0.6rem] font-medium text-white">{left}</span>
                     </div>
                     <div className="mt-1 grid gap-0.5">
                       {players
@@ -975,7 +975,7 @@ function PlayPanel({
                                     });
                                   }}
                                   disabled={left <= 0}
-                                  className="brass-pill grid size-6 place-items-center rounded-full text-xs font-black disabled:opacity-40"
+                                  className="grid size-6 place-items-center rounded-full bg-orange text-xs text-white disabled:opacity-40"
                                 >
                                   +
                                 </button>
