@@ -27,7 +27,7 @@ export default function ConfirmModal({
       onClick={(e) => { if (e.target === e.currentTarget) onCancel(); }}
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+      <div className="pointer-events-none absolute inset-0 bg-black/40 backdrop-blur-sm" />
 
       {/* Dialog */}
       <div className="coaster relative z-10 w-full max-w-sm px-6 py-5">
