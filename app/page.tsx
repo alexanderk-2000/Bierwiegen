@@ -1427,6 +1427,7 @@ export default function BierwiegenApp() {
           <TopBar
             game={game}
             activeRound={activeRound}
+            pendingCallerId={screen === "roundSetup" ? roundCaller : undefined}
             progress={progress}
             onUndo={undo}
             undoLabel={undoStack.at(-1)?.label}
@@ -1682,6 +1683,7 @@ export default function BierwiegenApp() {
 function TopBar({
   game,
   activeRound,
+  pendingCallerId,
   progress,
   onUndo,
   undoLabel,
@@ -1691,6 +1693,7 @@ function TopBar({
 }: {
   game: Game;
   activeRound?: Round;
+  pendingCallerId?: string;
   progress: string;
   onUndo: () => void;
   undoLabel?: string;
@@ -1719,7 +1722,7 @@ function TopBar({
           <StatusTile
             icon={<Beer />}
             label={activeRound?.type === "empty_finish" ? "Phase" : "Ansager"}
-            value={activeRound?.type === "empty_finish" ? "Alle trinken leer" : playerName(game.players, activeRound?.callerId)}
+            value={activeRound?.type === "empty_finish" ? "Alle trinken leer" : activeRound ? playerName(game.players, activeRound.callerId) : (pendingCallerId ? playerName(game.players, pendingCallerId) : "—")}
             accent
             theme={theme}
           />
@@ -1772,7 +1775,7 @@ function StatusTile({
           theme === "dark" ? "text-nightMuted" : "text-malt/65"
         )}
       >
-        <span className="size-3">{icon}</span>
+        <span className="inline-flex shrink-0 [&>svg]:size-3.5">{icon}</span>
         {label}
       </div>
       <div className={clsx("truncate text-base font-black md:text-lg", theme === "dark" && "text-nightText")}>
@@ -2322,13 +2325,25 @@ function SetupScreen(props: {
           <button
             onClick={props.startGame}
             disabled={props.players.length < 2}
-            className="inline-flex items-center gap-2 rounded-full bg-malt px-4 py-2 text-sm font-black text-white shadow-lg active:scale-95 disabled:opacity-45"
+            className={clsx(
+              "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-black text-white shadow-lg active:scale-95 disabled:opacity-40",
+              props.players.length >= 2 ? "bg-orange" : dark ? "bg-nightSurface2" : "bg-malt/40"
+            )}
           >
             Spiel starten
             <ArrowRight className="size-4" />
           </button>
         </div>
         <div className="mt-2 grid flex-1 gap-2 overflow-y-auto md:grid-cols-2 xl:grid-cols-3">
+          {props.players.length === 0 && (
+            <div className="col-span-full flex flex-col items-center justify-center gap-3 py-12 text-center">
+              <Beer className={clsx("size-10", dark ? "text-nightMuted" : "text-malt/30")} />
+              <div>
+                <div className={clsx("text-sm font-black", dark ? "text-nightText/60" : "text-malt/60")}>Noch keine Spieler</div>
+                <div className={clsx("mt-0.5 text-xs", dark ? "text-nightMuted" : "text-malt/45")}>Mindestens 2 hinzufügen, um zu starten</div>
+              </div>
+            </div>
+          )}
           {props.players.map((player) => (
             <div
               key={player.id}
@@ -2518,6 +2533,50 @@ function RoundSetupScreen({
             <Coins className="size-4" />
           </button>
         </div>
+        {(() => {
+          const lastRound = [...game.rounds].filter((r) => r.status === "completed").at(-1);
+          if (!lastRound) return null;
+          return (
+            <div className="mt-4 flex-1 min-h-0 overflow-y-auto">
+              <div className={clsx("mb-2 text-xs font-black uppercase", dark ? "text-nightMuted" : "text-malt/60")}>
+                Runde {lastRound.roundNumber} · Ergebnis
+              </div>
+              <div className="grid gap-1.5">
+                {game.players.map((player) => {
+                  const m = lastRound.measurements.find((item) => item.playerId === player.id);
+                  const pts = [...lastRound.penalties, ...lastRound.specialPenaltyDistributions]
+                    .filter((p) => p.playerId === player.id)
+                    .reduce((sum, p) => sum + p.points, 0);
+                  return (
+                    <div
+                      key={player.id}
+                      className={clsx(
+                        "flex items-center justify-between rounded-xl px-3 py-2",
+                        m?.exactHit ? (dark ? "bg-orangeBeer/20" : "bg-[#fff1e0]") : dark ? "bg-nightSurface2" : "bg-foam"
+                      )}
+                    >
+                      <div>
+                        <span className={clsx("text-sm font-bold", dark && "text-nightText")}>{player.name}</span>
+                        {m?.isCaller && (
+                          <span className={clsx("ml-1.5 text-[0.6rem] font-black uppercase", dark ? "text-nightMuted" : "text-malt/60")}>Ansager</span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 text-right">
+                        <span className={clsx("text-sm font-bold tabular-nums", dark ? "text-nightMuted" : "text-malt/70")}>
+                          {m ? grams(m.deviation) : "—"}
+                        </span>
+                        {pts > 0 && (
+                          <span className={clsx("text-sm font-black tabular-nums", dark ? "text-red-400" : "text-red-700")}>+{pts} SP</span>
+                        )}
+                        {m?.exactHit && <Target className="size-3.5 text-orangeBeer" />}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })()}
       </div>
       <Scoreboard game={game} theme={theme} />
     </section>
