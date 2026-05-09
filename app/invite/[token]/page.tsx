@@ -67,7 +67,7 @@ export default function InvitePage() {
     <main className="min-h-screen bg-[radial-gradient(circle_at_15%_0%,#fff0bd_0,#fff7e8_28%,#fffdf7_72%)] dark:bg-[radial-gradient(circle_at_15%_0%,#2a1d12_0,#1a1410_32%,#120e0a_78%)]">
       <div className="mx-auto flex min-h-screen max-w-md items-center px-4">
         <div className="w-full rounded-3xl border border-white/80 bg-white/95 p-6 shadow-board dark:border-nightBorder dark:bg-nightSurface">
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-amberBeer/15 px-3 py-1 text-xs font-black uppercase text-malt dark:text-amberBeer">
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-orange/15 px-3 py-1 text-xs font-medium uppercase text-orange dark:text-orange">
             <Beer className="size-4" />
             Einladung
           </div>
@@ -106,7 +106,7 @@ export default function InvitePage() {
                 <button
                   onClick={accept}
                   disabled={accepting}
-                  className="cta-pulse mt-5 inline-flex h-14 w-full items-center justify-center gap-2 rounded-full bg-amberBeer text-lg font-black text-malt shadow-lg active:scale-95 disabled:opacity-50"
+                  className="mt-5 inline-flex h-14 w-full items-center justify-center gap-2 rounded-full bg-orange text-lg font-medium text-white shadow-lg active:scale-95 disabled:opacity-50"
                 >
                   <Check className="size-5" />
                   {accepting ? "Trete bei..." : "Beitreten"}

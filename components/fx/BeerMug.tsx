@@ -40,7 +40,7 @@ export default function BeerMug({
     <div
       className={clsx(
         "relative inline-flex items-center justify-center",
-        highlight === "caller" && "drop-shadow-[0_0_18px_rgba(246,183,60,0.55)]",
+        highlight === "caller" && "drop-shadow-[0_0_18px_rgba(242,96,64,0.55)]",
         highlight === "win" && "drop-shadow-[0_0_22px_rgba(63,155,99,0.55)]",
         highlight === "loss" && "drop-shadow-[0_0_18px_rgba(220,38,38,0.45)] animate-shake",
         className
