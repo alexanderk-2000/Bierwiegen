@@ -65,7 +65,7 @@ export default function InvitationsPage() {
         <h1 className="flex items-center gap-2 text-2xl font-black text-malt dark:text-nightText">
           <Mail className="size-6 text-orangeBeer" />
           Einladungen
-          <span className="ml-2 rounded-full bg-amberBeer px-2 py-0.5 text-xs font-black text-malt">{invites.length}</span>
+          <span className="ml-2 rounded-full bg-orange px-2 py-0.5 text-xs font-medium text-white">{invites.length}</span>
         </h1>
 
         {invites.length === 0 ? (
@@ -74,7 +74,7 @@ export default function InvitationsPage() {
               <p className="font-bold text-malt/65 dark:text-nightMuted">Keine offenen Einladungen.</p>
               <Link
                 href="/games/new"
-                className="mt-3 inline-flex items-center gap-2 rounded-full bg-amberBeer px-4 py-2 text-sm font-black text-malt shadow active:scale-95"
+                className="mt-3 inline-flex items-center gap-2 rounded-full bg-orange px-4 py-2 text-sm font-medium text-white shadow active:scale-95"
               >
                 Eigenes Spiel erstellen
               </Link>

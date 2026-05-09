@@ -89,7 +89,7 @@ export default function InvitePage() {
                 <div className="mt-5 grid gap-2">
                   <a
                     href={`/login?next=/invite/${token}`}
-                    className="inline-flex h-14 items-center justify-center rounded-full bg-amberBeer text-lg font-black text-malt shadow-lg active:scale-95"
+                    className="inline-flex h-14 items-center justify-center rounded-full bg-orange text-lg font-medium text-white shadow-lg active:scale-95"
                   >
                     Einloggen & beitreten
                   </a>
