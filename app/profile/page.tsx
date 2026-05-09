@@ -142,9 +142,9 @@ export default function ProfilePage() {
       <AccountHeader />
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-3 overflow-hidden px-3 py-3 sm:px-5">
         {/* Profile Hero */}
-        <section className="coaster coaster-rim spotlight flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
+        <section className="coaster flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
           <div className="flex items-center gap-3">
-            <div className="brass-pill grid size-14 place-items-center rounded-full text-2xl font-black shadow-md">
+            <div className="grid size-14 place-items-center rounded-full bg-orange text-2xl font-bold text-white shadow-md">
               {displayName.slice(0, 1).toUpperCase()}
             </div>
             <div>
@@ -157,14 +157,14 @@ export default function ProfilePage() {
                   />
                   <button
                     onClick={saveName}
-                    className="brass-pill grid size-10 place-items-center rounded-full active:scale-95"
+                    className="grid size-10 place-items-center rounded-full bg-orange text-white active:scale-95"
                   >
                     <Save className="size-4" />
                   </button>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <h1 className="gold-text bg-clip-text text-2xl font-black sm:text-3xl">{displayName}</h1>
+                  <h1 className="text-2xl font-semibold text-malt dark:text-nightText sm:text-3xl">{displayName}</h1>
                   <button
                     onClick={() => setEditing(true)}
                     className="grid size-7 place-items-center rounded-full bg-cream text-malt active:scale-95 dark:bg-nightSurface2 dark:text-nightText"
@@ -185,7 +185,7 @@ export default function ProfilePage() {
             <Link
               href="/games/new"
               onClick={() => play("tap")}
-              className="brass-pill inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-black active:scale-95"
+              className="brass-pill inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium active:scale-95"
             >
               Neues Spiel
               <ArrowRight className="size-4" />
@@ -221,7 +221,7 @@ function TabButton({
         onClick();
       }}
       className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-black transition active:scale-95 ${
-        active ? "brass-pill" : "text-malt/65 hover:text-malt dark:text-nightMuted"
+        active ? "bg-orange text-white" : "text-malt/65 hover:text-malt dark:text-nightMuted"
       }`}
     >
       {icon}
@@ -314,7 +314,7 @@ function BeerTab({ beerStats, bottleStats }: { beerStats: BeerStats[]; bottleSta
               <div key={row.brand} className="rounded-xl bg-cream/80 px-3 py-2 dark:bg-nightSurface2/80">
                 <div className="flex items-center justify-between gap-2">
                   <div className="truncate text-sm font-black text-malt dark:text-nightText">{row.brand}</div>
-                  <span className="brass-pill shrink-0 rounded-full px-2 py-0.5 text-[0.6rem] font-black">
+                  <span className="shrink-0 rounded-full bg-orange px-2 py-0.5 text-[0.6rem] font-medium text-white">
                     {row.games}×
                   </span>
                 </div>
@@ -350,7 +350,7 @@ function BeerTab({ beerStats, bottleStats }: { beerStats: BeerStats[]; bottleSta
                   <div className="text-sm font-black text-malt dark:text-nightText">
                     {String(row.size_liters).replace(".", ",")} l
                   </div>
-                  <span className="brass-pill rounded-full px-2 py-0.5 text-[0.6rem] font-black">{row.games}×</span>
+                  <span className="rounded-full bg-orange px-2 py-0.5 text-[0.6rem] font-medium text-white">{row.games}×</span>
                 </div>
                 <div className="mt-1 grid grid-cols-2 gap-1 text-[0.65rem] font-bold text-malt/65 dark:text-nightMuted">
                   <span>Ø Abw. {grams(row.avg_deviation)}</span>
@@ -384,7 +384,7 @@ function HistoryTab({ history }: { history: GameHistoryRow[] }) {
             <Link
               href="/games/new"
               onClick={() => play("tap")}
-              className="brass-pill mt-3 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-black active:scale-95"
+              className="brass-pill mt-3 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium active:scale-95"
             >
               Erstes Spiel starten
             </Link>
