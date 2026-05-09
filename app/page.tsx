@@ -14,6 +14,7 @@ import {
   Delete,
   Globe2,
   History,
+  Home,
   Medal,
   Moon,
   PartyPopper,
@@ -1432,6 +1433,7 @@ export default function BierwiegenApp() {
             onUndo={undo}
             undoLabel={undoStack.at(-1)?.label}
             onReset={resetGame}
+            onGoHome={() => setScreen("home")}
             onOpenSettings={() => setShowSettings(true)}
             theme={settings.theme}
           />
@@ -1688,6 +1690,7 @@ function TopBar({
   onUndo,
   undoLabel,
   onReset,
+  onGoHome,
   onOpenSettings,
   theme
 }: {
@@ -1698,6 +1701,7 @@ function TopBar({
   onUndo: () => void;
   undoLabel?: string;
   onReset: () => void;
+  onGoHome: () => void;
   onOpenSettings: () => void;
   theme: "light" | "dark";
 }) {
@@ -1733,7 +1737,8 @@ function TopBar({
             theme={theme}
           />
         </div>
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-end gap-1.5">
+          <IconButton label="Startseite" onClick={onGoHome} icon={<Home />} theme={theme} />
           <IconButton label="Einstellungen" onClick={onOpenSettings} icon={<Settings />} theme={theme} />
           <IconButton label={undoLabel ? `Undo: ${undoLabel}` : "Undo"} onClick={onUndo} disabled={!undoLabel} icon={<Undo2 />} theme={theme} />
           <IconButton label="Reset" onClick={onReset} icon={<RotateCcw />} danger theme={theme} />
@@ -1815,7 +1820,7 @@ function IconButton({
           : "border-[#ead9b9] bg-white text-ink"
       )}
     >
-      <span className="size-4">{icon}</span>
+      <span className="inline-flex [&>svg]:size-4">{icon}</span>
     </button>
   );
 }
