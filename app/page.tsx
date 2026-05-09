@@ -1557,7 +1557,7 @@ export default function BierwiegenApp() {
               {screen === "play" && allMeasurementsIn && (
                 <button
                   onClick={reviewRound}
-                  className="cta-pulse inline-flex items-center gap-2 rounded-full bg-amberBeer px-5 py-3 text-sm font-black text-malt shadow-lg active:scale-95"
+                  className="inline-flex items-center gap-2 rounded-full bg-orange px-5 py-3 text-sm font-black text-white shadow-lg active:scale-95"
                 >
                   <Sparkles className="size-4" />
                   Auswerten
@@ -1845,7 +1845,7 @@ function HomeScreen({
           href="/login"
           title="Account"
           aria-label="Account"
-          className="brass-pill inline-flex h-11 items-center gap-2 rounded-full px-4 text-sm font-black shadow active:scale-95"
+          className="brass-pill inline-flex h-11 items-center gap-2 rounded-full px-4 text-sm font-medium shadow active:scale-95"
         >
           Account
         </NextLink>
@@ -1855,7 +1855,7 @@ function HomeScreen({
           aria-label="Einstellungen"
           className={clsx(
             "grid size-11 place-items-center rounded-full border-2 shadow-sm backdrop-blur transition hover:-translate-y-0.5 active:scale-95",
-            dark ? "border-brassLight/15 bg-nightSurface2/80 text-brassLight" : "border-malt/15 bg-white/80 text-malt"
+            dark ? "border-nightBorder bg-nightSurface2/80 dark:text-nightMuted" : "border-malt/15 bg-white/80 text-malt"
           )}
         >
           <Settings className="size-5" />
@@ -1866,13 +1866,13 @@ function HomeScreen({
         <div
           className={clsx(
             "mb-4 inline-flex items-center gap-2 rounded-full border-2 px-3 py-1.5 text-[0.65rem] font-black uppercase tracking-[0.2em] shadow-sm",
-            dark ? "border-brassLight/20 bg-nightSurface/80 text-brassLight" : "border-malt/15 bg-white/80 text-malt"
+            dark ? "border-nightBorder bg-nightSurface/80 dark:text-nightMuted" : "border-malt/15 bg-white/80 text-malt"
           )}
         >
-          <Sparkles className="size-3 text-orangeBeer candle-flicker" />
+          <Sparkles className="size-3 text-orange" />
           Premium Trinkspiel · 100 % offline
         </div>
-        <h1 className="gold-text bg-clip-text text-6xl font-black leading-[0.95] tracking-tight sm:text-7xl lg:text-[6.5rem]">
+        <h1 className="text-6xl font-semibold leading-[0.95] tracking-tight text-malt dark:text-nightText sm:text-7xl lg:text-[6.5rem]">
           Bierwiegen
         </h1>
         <p
@@ -1886,7 +1886,7 @@ function HomeScreen({
         <div className="mt-7 flex flex-col gap-3 sm:flex-row">
           <button
             onClick={onNew}
-            className="brass-pill cta-pulse gold-shimmer inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-4 text-lg font-black active:scale-95"
+            className="brass-pill inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-4 text-lg font-medium active:scale-95"
           >
             <Plus className="size-5" />
             Neues Spiel anstoßen
@@ -1897,7 +1897,7 @@ function HomeScreen({
             className={clsx(
               "inline-flex items-center justify-center gap-2 rounded-2xl border-2 px-6 py-4 text-lg font-black shadow-sm transition hover:-translate-y-0.5 active:scale-95 disabled:opacity-45 disabled:hover:translate-y-0",
               dark
-                ? "border-brassLight/20 bg-nightSurface text-brassLight"
+                ? "border-nightBorder bg-nightSurface dark:text-nightText"
                 : "border-malt/15 bg-white/85 text-malt"
             )}
           >
@@ -1910,7 +1910,7 @@ function HomeScreen({
             href="/games/new"
             className={clsx(
               "inline-flex items-center justify-center gap-2 rounded-xl border-2 px-3 py-2.5 text-sm font-black shadow-sm transition hover:-translate-y-0.5",
-              dark ? "border-brassLight/15 bg-nightSurface2 text-brassLight" : "border-malt/15 bg-white/85 text-malt"
+              dark ? "border-nightBorder bg-nightSurface2 dark:text-nightText" : "border-malt/15 bg-white/85 text-malt"
             )}
           >
             <Globe2 className="size-4 text-hop" />
@@ -1920,7 +1920,7 @@ function HomeScreen({
             href="/games"
             className={clsx(
               "inline-flex items-center justify-center gap-2 rounded-xl border-2 px-3 py-2.5 text-sm font-black shadow-sm transition hover:-translate-y-0.5",
-              dark ? "border-brassLight/15 bg-nightSurface2 text-brassLight" : "border-malt/15 bg-white/85 text-malt"
+              dark ? "border-nightBorder bg-nightSurface2 dark:text-nightText" : "border-malt/15 bg-white/85 text-malt"
             )}
           >
             <History className="size-4 text-orangeBeer" />
@@ -1930,7 +1930,7 @@ function HomeScreen({
             href="/profile"
             className={clsx(
               "inline-flex items-center justify-center gap-2 rounded-xl border-2 px-3 py-2.5 text-sm font-black shadow-sm transition hover:-translate-y-0.5",
-              dark ? "border-brassLight/15 bg-nightSurface2 text-brassLight" : "border-malt/15 bg-white/85 text-malt"
+              dark ? "border-nightBorder bg-nightSurface2 dark:text-nightText" : "border-malt/15 bg-white/85 text-malt"
             )}
           >
             <BarChart3 className="size-4 text-hop" />
@@ -1960,7 +1960,7 @@ function HomeScreen({
         className={clsx(
           "spotlight relative hidden min-h-[460px] overflow-hidden rounded-3xl border-2 p-5 shadow-board lg:block",
           dark
-            ? "border-brassLight/15 bg-nightSurface/85 ring-1 ring-brassLight/10"
+            ? "border-nightBorder bg-nightSurface/85 ring-1 ring-orange/10"
             : "border-white/80 bg-white/80 ring-1 ring-white/70"
         )}
       >
@@ -1973,13 +1973,13 @@ function HomeScreen({
         />
 
         <div className="relative flex items-center justify-between">
-          <div className="brass-pill rounded-full px-3 py-1.5 text-[0.65rem] font-black uppercase tracking-wider">
+          <div className="rounded-full bg-orange px-3 py-1.5 text-[0.65rem] font-medium uppercase tracking-wider text-white">
             Live-Theke
           </div>
           <div
             className={clsx(
               "rounded-full px-3 py-1.5 text-[0.65rem] font-black uppercase tracking-wider",
-              dark ? "bg-nightBg text-brassLight/70" : "bg-cream text-malt/60"
+              dark ? "bg-nightBg dark:text-nightMuted" : "bg-cream text-malt/60"
             )}
           >
             Runde 3
@@ -1992,19 +1992,19 @@ function HomeScreen({
             <div
               className={clsx(
                 "text-[0.65rem] font-black uppercase tracking-[0.25em]",
-                dark ? "text-brassLight/60" : "text-malt/55"
+                dark ? "dark:text-nightMuted" : "text-malt/55"
               )}
             >
               Zielgewicht
             </div>
-            <div className="gold-text bg-clip-text mt-1 text-7xl font-black leading-none">289 g</div>
+            <div className="mt-1 text-7xl font-bold leading-none text-orange tabular-nums">289 g</div>
             <div
               className={clsx(
                 "mt-2 inline-flex items-center gap-1.5 text-sm font-extrabold",
-                dark ? "text-brassLight/70" : "text-malt/65"
+                dark ? "dark:text-nightMuted" : "text-malt/65"
               )}
             >
-              <Medal className="size-3.5 candle-flicker text-amberBeer" />
+              <Medal className="size-3.5 text-orange" />
               Ansager: Spieler 2
             </div>
           </div>
@@ -2086,7 +2086,7 @@ function HomeScreen({
                 row.status === "Treffer"
                   ? "border-hop/50 bg-hop/10"
                   : dark
-                  ? "border-brassLight/15 bg-nightSurface2/80"
+                  ? "border-nightBorder bg-nightSurface2/80"
                   : "border-malt/10 bg-foam/85"
               )}
             >
@@ -2095,7 +2095,7 @@ function HomeScreen({
                   <div
                     className={clsx(
                       "text-[0.65rem] font-black uppercase tracking-wider",
-                      dark ? "text-brassLight/60" : "text-malt/55"
+                      dark ? "dark:text-nightMuted" : "text-malt/55"
                     )}
                   >
                     {row.name}
@@ -2103,7 +2103,7 @@ function HomeScreen({
                   <div
                     className={clsx(
                       "mt-1 text-2xl font-black leading-none",
-                      dark ? "text-brassLight" : "text-malt"
+                      dark ? "dark:text-nightText" : "text-malt"
                     )}
                   >
                     {row.value} g
@@ -2115,7 +2115,7 @@ function HomeScreen({
                     row.status === "Treffer"
                       ? "bg-hop text-white"
                       : row.status === "Ansager"
-                      ? "brass-pill"
+                      ? "bg-orange text-white"
                       : dark
                       ? "bg-red-900/40 text-red-300"
                       : "bg-dangerSoft text-red-700"
@@ -2142,7 +2142,7 @@ function HomeScreen({
         <div
           className={clsx(
             "relative mt-5 grid grid-cols-3 gap-2 text-center",
-            dark ? "text-brassLight" : "text-malt"
+            dark ? "dark:text-nightText" : "text-malt"
           )}
         >
           {[
@@ -2154,13 +2154,13 @@ function HomeScreen({
               key={label}
               className={clsx(
                 "rounded-xl border-2 px-3 py-2",
-                dark ? "border-brassLight/15 bg-nightBg" : "border-malt/10 bg-white/80"
+                dark ? "border-nightBorder bg-nightBg" : "border-malt/10 bg-white/80"
               )}
             >
               <div
                 className={clsx(
                   "text-[0.62rem] font-black uppercase tracking-wider",
-                  dark ? "text-brassLight/60" : "text-malt/50"
+                  dark ? "dark:text-nightMuted" : "text-malt/50"
                 )}
               >
                 {label}
@@ -2309,7 +2309,7 @@ function SetupScreen(props: {
           {props.error && <div className="rounded-xl bg-dangerSoft px-3 py-2 text-sm font-bold text-red-700">{props.error}</div>}
           <button
             onClick={props.addPlayer}
-            className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-amberBeer px-4 text-base font-black text-malt shadow-lg active:scale-95"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-orange px-4 text-base font-black text-white shadow-lg active:scale-95"
           >
             <Plus className="size-5" />
             Spieler hinzufügen
@@ -2504,8 +2504,7 @@ function RoundSetupScreen({
             onClick={onStart}
             disabled={!ready}
             className={clsx(
-              "inline-flex items-center gap-2 rounded-full bg-amberBeer px-5 py-3 text-base font-black text-malt shadow-lg active:scale-95 disabled:opacity-45",
-              ready && "cta-pulse"
+              "inline-flex items-center gap-2 rounded-full bg-orange px-5 py-3 text-base font-black text-white shadow-lg active:scale-95 disabled:opacity-45"
             )}
           >
             Runde starten
@@ -2605,7 +2604,7 @@ function GameBoard({
             {bigTapMode && nextOpenPlayer && !readonly && (
               <button
                 onClick={() => onOpenNumpad(nextOpenPlayer.id)}
-                className="cta-pulse inline-flex items-center gap-2 rounded-full bg-amberBeer px-5 py-3 text-sm font-black text-malt shadow-lg active:scale-95"
+                className="inline-flex items-center gap-2 rounded-full bg-orange px-5 py-3 text-sm font-black text-white shadow-lg active:scale-95"
               >
                 <Zap className="size-4" />
                 {nextOpenPlayer.name} eingeben
@@ -2626,7 +2625,7 @@ function GameBoard({
               disabled={!complete || readonly}
               className={clsx(
                 "rounded-full px-5 py-3 font-black shadow-lg disabled:opacity-45",
-                complete && !readonly ? "cta-pulse bg-amberBeer text-malt" : "bg-malt text-white"
+                complete && !readonly ? "bg-orange text-white" : "bg-malt text-white"
               )}
             >
               Runde auswerten
@@ -3067,8 +3066,7 @@ function ReviewPanel({
             onClick={onApply}
             disabled={hasOpenSpecials}
             className={clsx(
-              "rounded-xl bg-amberBeer px-4 py-2 text-sm font-black text-malt shadow-lg disabled:opacity-45",
-              !hasOpenSpecials && "cta-pulse"
+              "rounded-xl bg-orange px-4 py-2 text-sm font-black text-white shadow-lg disabled:opacity-45"
             )}
           >
             Übernehmen
@@ -3080,7 +3078,7 @@ function ReviewPanel({
       {revealStage === "drumroll" && (
         <div className="mt-5 rounded-2xl bg-malt/95 p-8 text-center text-white shadow-2xl drum-shake">
           <div className="text-sm font-black uppercase tracking-widest text-amberBeer">Trommelwirbel...</div>
-          <div className="mx-auto mt-4 grid size-16 place-items-center rounded-2xl bg-amberBeer text-malt">
+          <div className="mx-auto mt-4 grid size-16 place-items-center rounded-2xl bg-orange text-white">
             <PartyPopper className="size-9" />
           </div>
         </div>
@@ -3358,7 +3356,7 @@ function EndGameScreen({
         {resolved ? (
           <button
             onClick={onEvaluate}
-            className="cta-pulse mt-3 w-full rounded-full bg-amberBeer px-4 py-3 text-base font-black text-malt shadow-lg"
+            className="mt-3 w-full rounded-full bg-orange px-4 py-3 text-base font-black text-white shadow-lg"
           >
             Spiel auswerten
           </button>
@@ -3367,8 +3365,7 @@ function EndGameScreen({
             onClick={onFlip}
             disabled={!complete || coinSpinning}
             className={clsx(
-              "mt-3 w-full rounded-full bg-amberBeer px-4 py-3 text-base font-black text-malt shadow-lg disabled:opacity-45",
-              complete && !coinSpinning && "cta-pulse"
+              "mt-3 w-full rounded-full bg-orange px-4 py-3 text-base font-black text-white shadow-lg disabled:opacity-45"
             )}
           >
             Münzwurf starten
@@ -3423,7 +3420,7 @@ function FinalScreen({
               {game.coinFlipResult === "heaviest" ? "Schwerste verliert" : "Leichteste verliert"}
             </p>
           </div>
-          <button onClick={onNewGame} className="cta-pulse rounded-full bg-amberBeer px-4 py-2 text-sm font-black text-malt shadow-lg">
+          <button onClick={onNewGame} className="rounded-full bg-orange px-4 py-2 text-sm font-black text-white shadow-lg">
             Neues Spiel
           </button>
         </div>
@@ -3839,8 +3836,7 @@ function Numpad({
           onClick={submit}
           disabled={!value || value === ","}
           className={clsx(
-            "mt-3 flex h-20 w-full items-center justify-center gap-3 rounded-full bg-amberBeer px-6 text-2xl font-black text-malt shadow-lg transition active:scale-95 disabled:opacity-40 sm:mt-4",
-            value && value !== "," && "cta-pulse"
+            "mt-3 flex h-20 w-full items-center justify-center gap-3 rounded-full bg-orange px-6 text-2xl font-black text-white shadow-lg transition active:scale-95 disabled:opacity-40 sm:mt-4"
           )}
         >
           <Check className="size-7" />
@@ -3941,7 +3937,7 @@ function SettingsSheet({
               className={clsx(
                 "flex items-center justify-center gap-2 rounded-2xl px-4 py-3 font-black transition active:scale-95",
                 settings.theme === "light"
-                  ? "bg-amberBeer text-malt shadow-lg"
+                  ? "bg-orange text-white shadow-lg"
                   : dark
                   ? "bg-nightBg text-nightText"
                   : "bg-white text-ink"
@@ -3955,7 +3951,7 @@ function SettingsSheet({
               className={clsx(
                 "flex items-center justify-center gap-2 rounded-2xl px-4 py-3 font-black transition active:scale-95",
                 settings.theme === "dark"
-                  ? "bg-amberBeer text-malt shadow-lg"
+                  ? "bg-orange text-white shadow-lg"
                   : dark
                   ? "bg-nightBg text-nightText"
                   : "bg-white text-ink"
@@ -4084,7 +4080,7 @@ function SettingsSheet({
 
         <button
           onClick={onClose}
-          className="mt-4 w-full rounded-full bg-amberBeer px-6 py-4 text-lg font-black text-malt shadow-lg active:scale-95"
+          className="mt-4 w-full rounded-full bg-orange px-6 py-4 text-lg font-black text-white shadow-lg active:scale-95"
         >
           Fertig
         </button>
@@ -4125,7 +4121,7 @@ function SettingToggle({
         <div
           className={clsx(
             "grid size-10 shrink-0 place-items-center rounded-full",
-            active ? "bg-amberBeer text-malt" : dark ? "bg-nightBg text-nightMuted" : "bg-cream text-malt"
+            active ? "bg-orange text-white" : dark ? "bg-nightBg text-nightMuted" : "bg-cream text-malt"
           )}
         >
           {icon}
