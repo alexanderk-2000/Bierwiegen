@@ -18,14 +18,14 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
             href="/"
             className="mb-6 inline-flex items-center gap-2 text-malt dark:text-brassLight"
           >
-            <span className="brass-pill grid size-10 place-items-center rounded-full">
+            <span className="grid size-10 place-items-center rounded-full bg-orange text-white">
               <Beer className="size-5" />
             </span>
             <span className="flex flex-col leading-none">
               <span className="text-[0.55rem] font-black uppercase tracking-[0.25em] text-malt/60 dark:text-brassLight/70">
                 Premium Trinkspiel
               </span>
-              <span className="gold-text bg-clip-text text-xl font-black">Bierwiegen</span>
+              <span className="text-xl font-semibold text-malt dark:text-nightText">Bierwiegen</span>
             </span>
           </Link>
           {children}

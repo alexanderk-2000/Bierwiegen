@@ -115,7 +115,7 @@ export default function AccountHeader() {
         className={clsx(
           "relative inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-black transition active:scale-95",
           active
-            ? "brass-pill text-malt"
+            ? "bg-orange text-white"
             : "bg-white/55 text-malt hover:bg-white/85 dark:bg-nightSurface2/70 dark:text-nightText dark:hover:bg-nightSurface2"
         )}
       >
@@ -146,16 +146,16 @@ export default function AccountHeader() {
             onClick={() => play("tap")}
             className="group inline-flex items-center gap-2.5 text-lg font-black text-malt dark:text-goldHigh"
           >
-            <span className="brass-pill grid size-10 place-items-center rounded-full text-malt shadow-md">
+            <span className="grid size-10 place-items-center rounded-full bg-orange text-white shadow-md">
               <Beer className="size-5" />
             </span>
             <span className="hidden flex-col leading-none sm:flex">
               <span className="text-[0.55rem] font-black uppercase tracking-[0.25em] text-malt/55 dark:text-brassLight/70">
                 Premium Trinkspiel
               </span>
-              <span className="gold-text bg-clip-text text-xl font-black">Bierwiegen</span>
+              <span className="text-xl font-semibold text-malt dark:text-nightText">Bierwiegen</span>
             </span>
-            <span className="gold-text bg-clip-text text-xl font-black sm:hidden">Bierwiegen</span>
+            <span className="text-xl font-semibold text-malt dark:text-nightText sm:hidden">Bierwiegen</span>
           </Link>
 
           <nav className="flex items-center gap-1.5">
@@ -185,7 +185,7 @@ export default function AccountHeader() {
               <Link
                 href="/login"
                 onClick={() => play("tap")}
-                className="brass-pill inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-black active:scale-95"
+                className="brass-pill inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium active:scale-95"
               >
                 <LogIn className="size-4" />
                 Login
