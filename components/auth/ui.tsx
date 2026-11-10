@@ -86,7 +86,7 @@ export function AuthNotice({
       className={clsx(
         "flex gap-3 rounded-2xl border px-4 py-3 text-sm",
         tone === "error"
-          ? "border-wine/25 bg-dangerSoft text-wine dark:border-[#ff8a7a]/25 dark:bg-[#3a1814] dark:text-[#ffb4a8]"
+          ? "border-wine/25 bg-dangerSoft text-wine dark:border-[#ff8a7a]/25 dark:bg-[#4a221c] dark:text-[#ffb4a8]"
           : "border-emerald/30 bg-emerald/10 text-malt dark:border-emerald/40 dark:bg-emerald/15 dark:text-nightText"
       )}
     >

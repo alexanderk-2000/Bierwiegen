@@ -18,7 +18,8 @@ export function readTheme(): Theme {
   } catch {
     // ignore
   }
-  return window.matchMedia?.("(prefers-color-scheme: dark)")?.matches ? "dark" : "light";
+  // Standard ist das helle, freundliche Design — dunkel nur auf ausdrücklichen Wunsch.
+  return "light";
 }
 
 export function applyTheme(theme: Theme) {
@@ -58,4 +59,4 @@ export function onThemeChange(listener: (theme: Theme) => void) {
  * Läuft inline im <head>, bevor irgendetwas gemalt wird — verhindert das
  * Aufblitzen des hellen Themes. Muss dieselbe Logik wie readTheme() abbilden.
  */
-export const THEME_INIT_SCRIPT = `(function(){try{var d=document.documentElement,t=localStorage.getItem("${THEME_KEY}");if(t!=="dark"&&t!=="light"){try{t=JSON.parse(localStorage.getItem("${LEGACY_SETTINGS_KEY}")||"{}").theme}catch(e){}}if(t!=="dark"&&t!=="light"){t=window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}d.classList.toggle("dark",t==="dark")}catch(e){}})();`;
+export const THEME_INIT_SCRIPT = `(function(){try{var d=document.documentElement,t=localStorage.getItem("${THEME_KEY}");if(t!=="dark"&&t!=="light"){try{t=JSON.parse(localStorage.getItem("${LEGACY_SETTINGS_KEY}")||"{}").theme}catch(e){}}d.classList.toggle("dark",t==="dark")}catch(e){}})();`;

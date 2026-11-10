@@ -193,7 +193,7 @@ function LoginPageInner() {
 
   return (
     <>
-      <AuthCard title="Willkommen zurück" subtitle="Online-Spiele, persönliche Statistiken und Einladungen.">
+      <AuthCard title="Willkommen zurück 🍻" subtitle="Melde dich an für Online-Spiele, deine Statistiken und Einladungen.">
         <div
           role="tablist"
           aria-label="Login-Art"

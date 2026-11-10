@@ -246,7 +246,7 @@ export default function ProfilePage() {
         </section>
 
         {loadError && (
-          <div role="alert" className="rounded-xl border border-wine/30 bg-dangerSoft px-3 py-2 text-sm font-bold text-wine dark:border-[#ff8a7a]/25 dark:bg-[#3a1814] dark:text-[#ffb4a8]">
+          <div role="alert" className="rounded-xl border border-wine/30 bg-dangerSoft px-3 py-2 text-sm font-bold text-wine dark:border-[#ff8a7a]/25 dark:bg-[#4a221c] dark:text-[#ffb4a8]">
             {loadError}
           </div>
         )}
@@ -502,7 +502,7 @@ function StatCard({
         accent === "hop"
           ? "border-2 border-emerald/30 bg-emerald/10"
           : accent === "danger"
-          ? "border-2 border-wine/30 bg-dangerSoft dark:border-[#ff8a7a]/25 dark:bg-[#3a1814]"
+          ? "border-2 border-wine/30 bg-dangerSoft dark:border-[#ff8a7a]/25 dark:bg-[#4a221c]"
           : "border border-malt/10 bg-foam/85 dark:border-nightBorder dark:bg-nightSurface/85"
       }`}
     >

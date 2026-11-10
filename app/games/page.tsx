@@ -107,7 +107,7 @@ export default function GamesPage() {
         </section>
 
         {loadError && (
-          <div role="alert" className="rounded-xl border border-wine/30 bg-dangerSoft px-3 py-2 text-sm font-bold text-wine dark:border-[#ff8a7a]/25 dark:bg-[#3a1814] dark:text-[#ffb4a8]">
+          <div role="alert" className="rounded-xl border border-wine/30 bg-dangerSoft px-3 py-2 text-sm font-bold text-wine dark:border-[#ff8a7a]/25 dark:bg-[#4a221c] dark:text-[#ffb4a8]">
             Deine Spiele konnten nicht geladen werden. Prüfe deine Verbindung und lade die Seite neu.
           </div>
         )}

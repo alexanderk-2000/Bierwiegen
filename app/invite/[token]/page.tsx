@@ -101,7 +101,7 @@ export default function InvitePage() {
       <div className="h-[3px] w-full bg-[var(--bar-rim)]" />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[60vh] bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(240,78,27,0.14),transparent_75%)]"
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[60vh] bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,rgba(255,190,80,0.30),transparent_75%)]"
       />
       <div className="mx-auto flex min-h-[calc(100dvh-3px)] w-full max-w-md flex-col px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]">
         <header className="flex items-center justify-between gap-3">

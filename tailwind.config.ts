@@ -7,19 +7,19 @@ const config: Config = {
     extend: {
       colors: {
         // Basis
-        cream: "#fbf0dc",
-        foam: "#fffaf1",
+        cream: "#fff3dc",
+        foam: "#fffcf5",
         malt: "#432b1d",
         ink: "#24201b",
         hop: "#2f8f68",
         dangerSoft: "#fae1dc",
         // Dark mode
-        nightBg: "#14100a",
-        nightSurface: "#252015",
-        nightSurface2: "#2e2318",
-        nightBorder: "#3a2f25",
-        nightText: "#f0ead8",
-        nightMuted: "#a89880",
+        nightBg: "#231b13",
+        nightSurface: "#33291d",
+        nightSurface2: "#3f3324",
+        nightBorder: "#54442f",
+        nightText: "#f6efdf",
+        nightMuted: "#c2b196",
         // Orange Akzent
         orange: "#f04e1b",
         orangeHover: "#f26040",

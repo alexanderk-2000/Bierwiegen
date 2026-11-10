@@ -1443,8 +1443,8 @@ export default function BierwiegenApp() {
       className={clsx(
         "h-dvh overflow-hidden text-ink transition-colors",
         settings.theme === "dark"
-          ? "bg-[linear-gradient(135deg,rgba(47,143,104,0.12),transparent_34%),radial-gradient(circle_at_15%_0%,#2b2118_0,#1a1410_34%,#100c08_78%)] text-nightText"
-          : "bg-[linear-gradient(135deg,rgba(47,143,104,0.08),transparent_36%),radial-gradient(circle_at_15%_0%,#fff1bd_0,#fbf0dc_30%,#fffaf1_74%)]"
+          ? "bg-[linear-gradient(135deg,rgba(47,143,104,0.10),transparent_34%),radial-gradient(circle_at_15%_0%,#3a2c1e_0,#2a2017_34%,#1e1710_78%)] text-nightText"
+          : "bg-[linear-gradient(135deg,rgba(47,143,104,0.06),transparent_36%),radial-gradient(circle_at_15%_0%,#ffe9a8_0,#fff5df_32%,#fffdf8_76%)]"
       )}
     >
       <div className="mx-auto flex h-dvh w-full max-w-[1600px] flex-col px-3 py-2 sm:px-5 lg:px-6">

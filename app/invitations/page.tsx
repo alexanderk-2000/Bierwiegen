@@ -82,7 +82,7 @@ export default function InvitationsPage() {
         </h1>
 
         {error && (
-          <div role="alert" className="rounded-xl border border-wine/30 bg-dangerSoft px-3 py-2 text-sm font-bold text-wine dark:border-[#ff8a7a]/25 dark:bg-[#3a1814] dark:text-[#ffb4a8]">
+          <div role="alert" className="rounded-xl border border-wine/30 bg-dangerSoft px-3 py-2 text-sm font-bold text-wine dark:border-[#ff8a7a]/25 dark:bg-[#4a221c] dark:text-[#ffb4a8]">
             {error}
           </div>
         )}
@@ -123,7 +123,7 @@ export default function InvitationsPage() {
                     disabled={busy !== null}
                     aria-label={`Einladung zu ${invite.games?.name ?? "Spiel"} ablehnen`}
                     title="Ablehnen"
-                    className="grid size-11 place-items-center rounded-full bg-dangerSoft text-wine active:scale-95 disabled:opacity-50 dark:bg-[#3a1814] dark:text-[#ffb4a8]"
+                    className="grid size-11 place-items-center rounded-full bg-dangerSoft text-wine active:scale-95 disabled:opacity-50 dark:bg-[#4a221c] dark:text-[#ffb4a8]"
                   >
                     <X className="size-4" />
                   </button>
