@@ -50,6 +50,13 @@ type ModalConfig =
   | { type: "removePlayer"; playerId: string }
   | { type: "startEmpty" };
 
+const GAME_STATUS_LABELS: Record<string, string> = {
+  setup: "Lobby",
+  playing: "Läuft",
+  ended: "Beendet",
+  archived: "Archiviert"
+};
+
 const grams = (value: number | null | undefined) =>
   value !== null && value !== undefined ? `${Math.round(value)} g` : "—";
 
@@ -79,6 +86,7 @@ export default function GamePage() {
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<"play" | "lobby">("lobby");
   const [modalConfig, setModalConfig] = useState<ModalConfig | null>(null);
+  const [gameLoaded, setGameLoaded] = useState(false);
 
   const [callerId, setCallerId] = useState("");
   const [targetWeight, setTargetWeight] = useState("");
@@ -91,6 +99,7 @@ export default function GamePage() {
   // FX-Trigger
   const [hitBurst, setHitBurst] = useState<number>(0);
   const [winBurst, setWinBurst] = useState<number>(0);
+  const searchRequestRef = useRef(0);
   const lastReviewedRoundRef = useRef<string | null>(null);
   const lastGameStatusRef = useRef<string | null>(null);
 
@@ -107,6 +116,7 @@ export default function GamePage() {
   const refreshAll = useCallback(async () => {
     if (!gameId) return;
     const data = await getGame(gameId);
+    setGameLoaded(true);
     setGame(data.game);
     setPlayers(data.players);
     setRounds(data.rounds as RoundRow[]);
@@ -121,8 +131,25 @@ export default function GamePage() {
     }
   }, [gameId]);
 
+  // Realtime liefert pro Aktion mehrere Events (Runde, Messung, Spieler …) —
+  // zu einem einzigen Reload bündeln statt 4–5 parallele Komplett-Abfragen.
+  const refreshTimerRef = useRef<number | null>(null);
+  const scheduleRefresh = useCallback(() => {
+    if (refreshTimerRef.current !== null) return;
+    refreshTimerRef.current = window.setTimeout(() => {
+      refreshTimerRef.current = null;
+      void refreshAll();
+    }, 150);
+  }, [refreshAll]);
+  useEffect(
+    () => () => {
+      if (refreshTimerRef.current !== null) window.clearTimeout(refreshTimerRef.current);
+    },
+    []
+  );
+
   useEffect(() => {
-    if (!loading && !user) router.push(`/login?next=/games/${gameId}`);
+    if (!loading && !user) router.replace(`/login?next=/games/${gameId}`);
   }, [loading, user, gameId, router]);
 
   useEffect(() => {
@@ -134,16 +161,16 @@ export default function GamePage() {
     const supabase = getSupabaseBrowserClient();
     const channel = supabase
       .channel(`game-${gameId}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "games", filter: `id=eq.${gameId}` }, () => refreshAll())
-      .on("postgres_changes", { event: "*", schema: "public", table: "game_players", filter: `game_id=eq.${gameId}` }, () => refreshAll())
-      .on("postgres_changes", { event: "*", schema: "public", table: "rounds", filter: `game_id=eq.${gameId}` }, () => refreshAll())
-      .on("postgres_changes", { event: "*", schema: "public", table: "measurements" }, () => refreshAll())
-      .on("postgres_changes", { event: "*", schema: "public", table: "invitations", filter: `game_id=eq.${gameId}` }, () => refreshAll())
+      .on("postgres_changes", { event: "*", schema: "public", table: "games", filter: `id=eq.${gameId}` }, scheduleRefresh)
+      .on("postgres_changes", { event: "*", schema: "public", table: "game_players", filter: `game_id=eq.${gameId}` }, scheduleRefresh)
+      .on("postgres_changes", { event: "*", schema: "public", table: "rounds", filter: `game_id=eq.${gameId}` }, scheduleRefresh)
+      .on("postgres_changes", { event: "*", schema: "public", table: "measurements" }, scheduleRefresh)
+      .on("postgres_changes", { event: "*", schema: "public", table: "invitations", filter: `game_id=eq.${gameId}` }, scheduleRefresh)
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [gameId, user, refreshAll]);
+  }, [gameId, user, scheduleRefresh]);
 
   useEffect(() => {
     if (activeRound) setTab("play");
@@ -182,12 +209,26 @@ export default function GamePage() {
     lastGameStatusRef.current = game.status;
   }, [game]);
 
-  if (loading || !user) return <main className="h-dvh bg-[var(--bg-page)]" />;
+  if (loading || !user) return <main className="h-dvh" aria-busy="true" />;
   if (!game) {
     return (
-      <div className="flex h-dvh flex-col">
+      <div className="flex min-h-dvh flex-col lg:h-dvh">
         <AccountHeader />
-        <div className="grid flex-1 place-items-center font-bold text-malt/65 dark:text-nightMuted">Lade Spiel…</div>
+        <div className="grid flex-1 place-items-center px-4 text-center font-bold text-malt/65 dark:text-nightMuted">
+          {gameLoaded ? (
+            <div>
+              <p>Dieses Spiel gibt es nicht (mehr) – oder du bist kein Mitspieler.</p>
+              <Link
+                href="/games"
+                className="brass-pill mt-4 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium"
+              >
+                Zu meinen Spielen
+              </Link>
+            </div>
+          ) : (
+            "Lade Spiel…"
+          )}
+        </div>
       </div>
     );
   }
@@ -298,8 +339,14 @@ export default function GamePage() {
       setSearchResults([]);
       return;
     }
-    const results = await searchProfiles(query);
-    setSearchResults(results);
+    // Nur die Antwort auf die jüngste Eingabe übernehmen (sonst überschreibt eine langsame alte Suche die neue).
+    const requestId = ++searchRequestRef.current;
+    try {
+      const results = await searchProfiles(query);
+      if (requestId === searchRequestRef.current) setSearchResults(results);
+    } catch {
+      if (requestId === searchRequestRef.current) setSearchResults([]);
+    }
   };
 
   const doInviteUser = async (invitedUserId: string) => {
@@ -342,14 +389,14 @@ export default function GamePage() {
   };
 
   return (
-    <div className="relative flex h-dvh flex-col">
+    <div className="relative flex min-h-dvh flex-col lg:h-dvh">
       <AccountHeader />
       {/* Globale FX-Layer (Win) */}
       <div className="pointer-events-none fixed inset-0 z-30">
         <Burst trigger={winBurst || null} variant="confetti" count={140} origin={{ x: 0.5, y: 0.4 }} />
       </div>
 
-      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-2 overflow-hidden px-3 py-2 sm:px-5">
+      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-2 px-3 py-2 sm:px-5 lg:overflow-hidden">
         {/* Game Header */}
         <header className="coaster relative flex flex-wrap items-center justify-between gap-2 px-3 py-2.5 sm:px-5">
           <div className="min-w-0">
@@ -362,7 +409,7 @@ export default function GamePage() {
             </Link>
             <h1 className="truncate text-2xl font-semibold text-malt dark:text-nightText sm:text-3xl">{game.name}</h1>
             <div className="text-[0.65rem] font-bold uppercase tracking-wider text-malt/55 dark:text-nightMuted">
-              {game.status} · {players.length} Spieler · Runde {rounds.length}
+              {GAME_STATUS_LABELS[game.status] ?? game.status} · {players.length} Spieler · Runde {rounds.length}
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -643,7 +690,9 @@ function LobbyView({
                 {isHost && player.role !== "host" && (
                   <button
                     onClick={() => onRemovePlayer(player.id)}
-                    className="grid size-7 place-items-center rounded-full bg-dangerSoft text-wine active:scale-95"
+                    aria-label={`${player.display_name} entfernen`}
+                    title="Spieler entfernen"
+                    className="grid size-9 place-items-center rounded-full bg-dangerSoft text-wine active:scale-95"
                   >
                     <Trash2 className="size-3.5" />
                   </button>
@@ -660,12 +709,19 @@ function LobbyView({
                 value={guestName}
                 onChange={(event) => onGuestNameChange(event.target.value)}
                 placeholder="Gast hinzufügen"
-                className="tap-input h-9 flex-1 px-2 text-sm font-black"
+                aria-label="Name des Gastspielers"
+                maxLength={30}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" && guestName.trim()) void onAddGuest();
+                }}
+                className="tap-input h-11 min-w-0 flex-1 px-3 text-base font-semibold"
               />
               <button
                 onClick={onAddGuest}
                 disabled={!guestName.trim()}
-                className="grid size-9 place-items-center rounded-full bg-orange text-white active:scale-95 disabled:opacity-40"
+                aria-label="Gast hinzufügen"
+                title="Gast hinzufügen"
+                className="grid size-11 shrink-0 place-items-center rounded-full bg-orange text-white active:scale-95 disabled:opacity-40"
               >
                 <Plus className="size-4" />
               </button>
@@ -677,7 +733,9 @@ function LobbyView({
                   value={searchQuery}
                   onChange={(event) => onSearchProfiles(event.target.value)}
                   placeholder="Account suchen…"
-                  className="tap-input h-9 flex-1 px-2 text-sm font-black"
+                  aria-label="Account nach Namen suchen"
+                  type="search"
+                  className="tap-input h-11 min-w-0 flex-1 px-3 text-base font-semibold"
                 />
               </div>
               {searchResults.length > 0 && (
@@ -702,12 +760,19 @@ function LobbyView({
                 value={emailInvite}
                 onChange={(event) => onEmailChange(event.target.value)}
                 placeholder="E-Mail einladen"
-                className="tap-input h-9 flex-1 px-2 text-sm font-black"
+                aria-label="E-Mail-Adresse einladen"
+                autoCapitalize="none"
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" && emailInvite.trim()) void onInviteByEmail();
+                }}
+                className="tap-input h-11 min-w-0 flex-1 px-3 text-base font-semibold"
               />
               <button
                 onClick={onInviteByEmail}
                 disabled={!emailInvite.trim()}
-                className="grid size-9 place-items-center rounded-full bg-orange text-white active:scale-95 disabled:opacity-40"
+                aria-label="Per E-Mail einladen"
+                title="Per E-Mail einladen"
+                className="grid size-11 shrink-0 place-items-center rounded-full bg-orange text-white active:scale-95 disabled:opacity-40"
               >
                 <Plus className="size-4" />
               </button>
@@ -762,7 +827,8 @@ function LobbyView({
             <select
               value={callerId}
               onChange={(event) => onCallerChange(event.target.value)}
-              className="tap-input h-10 w-full px-2 text-sm font-black"
+              aria-label="Ansager wählen"
+              className="tap-input h-11 w-full px-3 text-base font-semibold"
             >
               <option value="">Ansager wählen</option>
               {players.map((player) => (
@@ -776,7 +842,8 @@ function LobbyView({
               onChange={(event) => onTargetChange(event.target.value)}
               inputMode="decimal"
               placeholder="Zielgewicht in g"
-              className="tap-input mt-1.5 h-12 w-full px-2 text-lg font-black"
+              aria-label="Zielgewicht in Gramm"
+              className="tap-input mt-1.5 h-12 w-full px-3 text-lg font-black"
             />
             <button
               onClick={onStartRound}
@@ -1049,7 +1116,7 @@ function PlayPanel({
                                       return { ...current, [hit.game_player_id]: giverDist };
                                     });
                                   }}
-                                  className="grid size-6 place-items-center rounded-full bg-white text-xs font-black active:scale-95 dark:bg-nightBg"
+                                  className="grid size-8 place-items-center rounded-full bg-white text-xs font-black active:scale-95 dark:bg-nightBg"
                                 >
                                   −
                                 </button>
@@ -1065,7 +1132,7 @@ function PlayPanel({
                                     });
                                   }}
                                   disabled={left <= 0}
-                                  className="grid size-6 place-items-center rounded-full bg-orange text-xs text-white disabled:opacity-40"
+                                  className="grid size-8 place-items-center rounded-full bg-orange text-xs text-white disabled:opacity-40"
                                 >
                                   +
                                 </button>

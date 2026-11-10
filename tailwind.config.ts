@@ -7,19 +7,19 @@ const config: Config = {
     extend: {
       colors: {
         // Basis
-        cream: "#fbf0dc",
-        foam: "#fffaf1",
+        cream: "#fff3dc",
+        foam: "#fffcf5",
         malt: "#432b1d",
         ink: "#24201b",
         hop: "#2f8f68",
         dangerSoft: "#fae1dc",
         // Dark mode
-        nightBg: "#14100a",
-        nightSurface: "#252015",
-        nightSurface2: "#2e2318",
-        nightBorder: "#3a2f25",
-        nightText: "#f0ead8",
-        nightMuted: "#a89880",
+        nightBg: "#231b13",
+        nightSurface: "#33291d",
+        nightSurface2: "#3f3324",
+        nightBorder: "#54442f",
+        nightText: "#f6efdf",
+        nightMuted: "#c2b196",
         // Orange Akzent
         orange: "#f04e1b",
         orangeHover: "#f26040",
@@ -32,7 +32,11 @@ const config: Config = {
         wine: "#7a1e2e",
         glassEdge: "rgba(255,255,255,0.55)"
       },
+      spacing: {
+        13: "3.25rem"
+      },
       boxShadow: {
+        coaster: "0 2px 6px rgba(0,0,0,0.08), 0 10px 26px rgba(0,0,0,0.10)",
         board: "0 22px 60px rgba(67, 43, 29, 0.13), 0 2px 10px rgba(67, 43, 29, 0.08)",
         surface: "0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06)",
         surfaceDark: "0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.25)",

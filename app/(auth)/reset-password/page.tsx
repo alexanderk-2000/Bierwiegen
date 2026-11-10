@@ -2,81 +2,86 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, Mail } from "lucide-react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { authErrorMessage } from "@/lib/auth/errors";
+import { AuthCard, AuthField, AuthNotice, SubmitButton, authLinkClass } from "@/components/auth/ui";
 import { play } from "@/lib/fx/sound";
+import { vibrate } from "@/lib/fx/haptics";
 
 export default function ResetPasswordPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [sent, setSent] = useState(false);
+  const [sentTo, setSentTo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (loading) return;
     setLoading(true);
     setError(null);
     play("tap");
-    const supabase = getSupabaseBrowserClient();
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/callback?next=/profile`
-    });
-    setLoading(false);
-    if (error) {
-      setError(error.message);
-      return;
+    try {
+      const { error: authError } = await getSupabaseBrowserClient().auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent("/update-password")}`
+      });
+      if (authError) {
+        setError(authErrorMessage(authError));
+        vibrate("fail");
+        return;
+      }
+      setSentTo(email.trim());
+      play("bell");
+    } catch (cause) {
+      setError(authErrorMessage(cause as Error));
+      vibrate("fail");
+    } finally {
+      setLoading(false);
     }
-    setSent(true);
-    play("bell");
   };
 
   return (
-    <div className="w-full">
-      <Link
-        href="/login"
-        className="mb-4 inline-flex items-center gap-2 text-sm font-black text-malt/65 hover:text-malt dark:text-nightMuted"
+    <>
+      <AuthCard
+        title="Passwort zurücksetzen"
+        subtitle="Wir schicken dir einen Link, über den du ein neues Passwort vergibst."
       >
-        <ArrowLeft className="size-4" />
-        Zurück zum Login
-      </Link>
-      <div className="coaster p-6 phase-enter">
-        <h1 className="text-3xl font-semibold text-malt dark:text-nightText">Passwort zurücksetzen</h1>
-        <p className="mt-1 text-sm font-bold text-malt/65 dark:text-nightMuted">
-          Wir schicken dir einen Reset-Link per E-Mail.
-        </p>
-        {sent ? (
-          <div className="mt-6 rounded-2xl border-2 border-emerald bg-emerald/10 p-4 text-malt dark:text-nightText">
-            <div className="text-base font-black">Link versendet!</div>
-            <p className="mt-1 text-sm font-bold opacity-80">
-              Schau in dein Postfach: <strong>{email}</strong>.
-            </p>
+        {sentTo ? (
+          <div className="mt-5">
+            <AuthNotice tone="success" title="Link verschickt">
+              Falls es einen Account zu <strong className="break-all">{sentTo}</strong> gibt, liegt der Link gleich in
+              deinem Postfach. Öffne ihn in diesem Browser.
+            </AuthNotice>
           </div>
         ) : (
-          <form onSubmit={submit} className="mt-5 grid gap-3">
-            <input
+          <form onSubmit={submit} className="mt-5 grid gap-4">
+            <AuthField
+              label="E-Mail"
               type="email"
+              name="email"
+              inputMode="email"
+              autoComplete="email"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
               required
-              placeholder="E-Mail"
+              placeholder="du@beispiel.de"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className="tap-input h-14 px-4 text-lg font-black"
             />
-            <button
-              type="submit"
-              disabled={loading || !email}
-              className="brass-pill inline-flex h-14 items-center justify-center gap-3 rounded-2xl px-6 text-lg font-medium disabled:opacity-50"
-            >
-              {loading ? "Sende..." : "Reset-Link senden"}
-              <ArrowRight className="size-5" />
-            </button>
+            {error && <AuthNotice tone="error">{error}</AuthNotice>}
+            <SubmitButton loading={loading} icon={<Mail className="size-5" />}>
+              {loading ? "Sende…" : "Reset-Link senden"}
+            </SubmitButton>
           </form>
         )}
-        {error && (
-          <div className="mt-4 rounded-2xl border-2 border-wine/40 bg-dangerSoft px-4 py-3 text-sm font-bold text-wine">
-            {error}
-          </div>
-        )}
-      </div>
-    </div>
+      </AuthCard>
+      <p className="mt-5 text-center text-sm">
+        <Link href="/login" className={`${authLinkClass} inline-flex items-center gap-1.5`}>
+          <ArrowLeft className="size-4" />
+          Zurück zum Login
+        </Link>
+      </p>
+    </>
   );
 }

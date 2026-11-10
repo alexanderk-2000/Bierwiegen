@@ -16,6 +16,7 @@ import {
   Globe2,
   History,
   Home,
+  LogIn,
   Medal,
   Moon,
   PartyPopper,
@@ -30,6 +31,7 @@ import {
   Trash2,
   Trophy,
   Undo2,
+  UserRound,
   Volume2,
   VolumeX,
   X,
@@ -37,6 +39,8 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ConfirmModal from "@/components/ConfirmModal";
+import { useUser } from "@/lib/auth/use-user";
+import { applyTheme, readTheme, setTheme } from "@/lib/theme";
 
 type BottleSize = 0.25 | 0.33 | 0.5 | number;
 
@@ -733,8 +737,11 @@ function useSettings() {
         setSettingsState({
           ...DEFAULT_SETTINGS,
           ...parsed,
-          penalties: { ...DEFAULT_SETTINGS.penalties, ...(parsed.penalties ?? {}) }
+          penalties: { ...DEFAULT_SETTINGS.penalties, ...(parsed.penalties ?? {}) },
+          theme: readTheme()
         });
+      } else {
+        setSettingsState((previous) => ({ ...previous, theme: readTheme() }));
       }
     } catch {
       // ignore
@@ -747,10 +754,12 @@ function useSettings() {
     localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
   }, [settings, loaded]);
 
+  // Theme teilt sich die App über lib/theme — nur schreiben, wenn es sich wirklich geändert hat.
   useEffect(() => {
-    if (typeof document === "undefined") return;
-    document.documentElement.classList.toggle("dark", settings.theme === "dark");
-  }, [settings.theme]);
+    if (!loaded) return;
+    if (readTheme() !== settings.theme) setTheme(settings.theme);
+    else applyTheme(settings.theme);
+  }, [settings.theme, loaded]);
 
   const setSettings = useCallback((updater: (previous: GameSettings) => GameSettings) => {
     setSettingsState((previous) => updater(previous));
@@ -863,12 +872,6 @@ export default function BierwiegenApp() {
   useEffect(() => {
     if (screen === "play" && activeRoundId) scrollToCurrentRound();
   }, [activeRoundId, screen, scrollToCurrentRound]);
-
-  useEffect(() => {
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js").catch(() => undefined);
-    }
-  }, []);
 
   useEffect(() => {
     try {
@@ -1440,8 +1443,8 @@ export default function BierwiegenApp() {
       className={clsx(
         "h-dvh overflow-hidden text-ink transition-colors",
         settings.theme === "dark"
-          ? "bg-[linear-gradient(135deg,rgba(47,143,104,0.12),transparent_34%),radial-gradient(circle_at_15%_0%,#2b2118_0,#1a1410_34%,#100c08_78%)] text-nightText"
-          : "bg-[linear-gradient(135deg,rgba(47,143,104,0.08),transparent_36%),radial-gradient(circle_at_15%_0%,#fff1bd_0,#fbf0dc_30%,#fffaf1_74%)]"
+          ? "bg-[linear-gradient(135deg,rgba(47,143,104,0.10),transparent_34%),radial-gradient(circle_at_15%_0%,#3a2c1e_0,#2a2017_34%,#1e1710_78%)] text-nightText"
+          : "bg-[linear-gradient(135deg,rgba(47,143,104,0.06),transparent_36%),radial-gradient(circle_at_15%_0%,#ffe9a8_0,#fff5df_32%,#fffdf8_76%)]"
       )}
     >
       <div className="mx-auto flex h-dvh w-full max-w-[1600px] flex-col px-3 py-2 sm:px-5 lg:px-6">
@@ -1884,6 +1887,7 @@ function HomeScreen({
   theme: "light" | "dark";
 }) {
   const dark = theme === "dark";
+  const { user } = useUser();
   return (
     <section className="relative grid h-full items-center gap-8 overflow-y-auto pb-4 pt-16 lg:grid-cols-[minmax(0,0.95fr)_minmax(430px,0.82fr)]">
       {/* Brass-Linie ganz oben */}
@@ -1895,12 +1899,11 @@ function HomeScreen({
       />
       <div className="absolute right-2 top-3 z-30 flex gap-2">
         <NextLink
-          href="/login"
-          title="Account"
-          aria-label="Account"
+          href={user ? "/profile" : "/login"}
           className="brass-pill inline-flex h-11 items-center gap-2 rounded-full px-4 text-sm font-medium shadow active:scale-95"
         >
-          Account
+          {user ? <UserRound className="size-4" /> : <LogIn className="size-4" />}
+          {user ? "Profil" : "Login"}
         </NextLink>
         <button
           onClick={onOpenSettings}

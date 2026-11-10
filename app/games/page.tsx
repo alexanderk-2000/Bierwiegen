@@ -24,14 +24,30 @@ export default function GamesPage() {
   const router = useRouter();
   const [games, setGames] = useState<GameRow[]>([]);
   const [query, setQuery] = useState("");
+  const [gamesLoading, setGamesLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
-    if (!loading && !user) router.push("/login?next=/games");
+    if (!loading && !user) router.replace("/login?next=/games");
   }, [loading, user, router]);
 
   useEffect(() => {
     if (!user) return;
-    listMyGames(user.id).then(setGames);
+    let active = true;
+    setLoadError(false);
+    listMyGames(user.id)
+      .then((rows) => {
+        if (active) setGames(rows);
+      })
+      .catch(() => {
+        if (active) setLoadError(true);
+      })
+      .finally(() => {
+        if (active) setGamesLoading(false);
+      });
+    return () => {
+      active = false;
+    };
   }, [user]);
 
   const filtered = useMemo(() => {
@@ -45,12 +61,12 @@ export default function GamesPage() {
     archived: filtered.filter((g) => g.status === "archived")
   };
 
-  if (loading || !user) return <main className="h-dvh bg-[var(--bg-page)]" />;
+  if (loading || !user) return <main className="h-dvh" aria-busy="true" />;
 
   return (
-    <div className="flex h-dvh flex-col">
+    <div className="flex min-h-dvh flex-col md:h-dvh">
       <AccountHeader />
-      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-3 overflow-hidden px-3 py-3 sm:px-5">
+      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-3 md:overflow-hidden px-3 py-3 sm:px-5">
         <section className="coaster px-4 py-3 sm:px-6 sm:py-4">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
@@ -59,7 +75,11 @@ export default function GamesPage() {
               </div>
               <h1 className="text-2xl font-semibold text-malt dark:text-nightText sm:text-3xl">Meine Spiele</h1>
               <p className="text-xs font-bold text-malt/65 dark:text-nightMuted">
-                {games.length} Runden insgesamt · {groups.playing.length} laufen gerade
+                {gamesLoading
+                  ? "Lade deine Spiele…"
+                  : `${games.length} ${games.length === 1 ? "Spiel" : "Spiele"} insgesamt · ${groups.playing.length} ${
+                      groups.playing.length === 1 ? "läuft" : "laufen"
+                    } gerade`}
               </p>
             </div>
             <Link
@@ -77,15 +97,23 @@ export default function GamesPage() {
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
+                type="search"
+                aria-label="Spiel suchen"
                 placeholder="Spiel suchen…"
-                className="tap-input h-10 w-full pl-9 pr-3 text-sm font-black"
+                className="tap-input h-11 w-full pl-9 pr-3 text-base font-semibold sm:text-sm"
               />
             </div>
           </div>
         </section>
 
+        {loadError && (
+          <div role="alert" className="rounded-xl border border-wine/30 bg-dangerSoft px-3 py-2 text-sm font-bold text-wine dark:border-[#ff8a7a]/25 dark:bg-[#4a221c] dark:text-[#ffb4a8]">
+            Deine Spiele konnten nicht geladen werden. Prüfe deine Verbindung und lade die Seite neu.
+          </div>
+        )}
+
         <div className="grid flex-1 gap-3 overflow-hidden md:grid-cols-3">
-          <Section title="Aktiv" games={groups.playing} empty="Noch nichts am Laufen." accent="amber" />
+          <Section title="Aktiv" games={groups.playing} empty={gamesLoading ? "Lade…" : "Noch nichts am Laufen."} accent="amber" />
           <Section title="Beendet" games={groups.ended} empty="Noch nichts beendet." />
           <Section title="Archiv" games={groups.archived} empty="Leer." />
         </div>
@@ -120,11 +148,11 @@ function Section({
         </span>
       </div>
       {games.length === 0 ? (
-        <div className="flex flex-1 items-center justify-center rounded-xl border-2 border-dashed border-malt/15 bg-foam/40 p-3 text-center text-xs font-bold text-malt/50 dark:border-nightBorder dark:bg-nightBg/40">
+        <div className="flex flex-1 items-center justify-center rounded-xl border-2 border-dashed border-malt/15 bg-foam/40 p-3 text-center text-xs font-bold text-malt/55 dark:text-nightMuted dark:border-nightBorder dark:bg-nightBg/40">
           {empty}
         </div>
       ) : (
-        <div className="scroll-vintage grid flex-1 gap-1.5 overflow-y-auto pr-1">
+        <div className="scroll-vintage grid flex-1 content-start gap-1.5 overflow-y-auto pr-1">
           {games.map((game) => (
             <GameCard key={game.id} game={game} />
           ))}

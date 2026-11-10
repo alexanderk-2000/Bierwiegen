@@ -44,12 +44,14 @@ export async function removePlayer(playerId: string) {
 }
 
 export async function searchProfiles(query: string) {
-  if (!query.trim()) return [];
+  // LIKE-Wildcards und PostgREST-Sonderzeichen entschärfen, sonst matcht "%" jeden Account.
+  const term = query.trim().replace(/[%_\\,()]/g, "");
+  if (term.length < 2) return [];
   const supabase = getSupabaseBrowserClient();
   const { data, error } = await supabase
     .from("profiles")
     .select("user_id, display_name, avatar_url")
-    .ilike("display_name", `%${query}%`)
+    .ilike("display_name", `%${term}%`)
     .limit(10);
   if (error) throw error;
   return data ?? [];

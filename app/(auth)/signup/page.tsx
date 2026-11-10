@@ -2,133 +2,190 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { Suspense, useEffect, useState } from "react";
+import { ArrowRight } from "lucide-react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { useUser } from "@/lib/auth/use-user";
+import { safeNextPath } from "@/lib/auth/safe-next";
+import { authErrorMessage } from "@/lib/auth/errors";
+import type { OAuthProvider } from "@/lib/auth/providers";
+import { AuthCard, AuthField, AuthNotice, PasswordField, SubmitButton, authLinkClass } from "@/components/auth/ui";
+import OAuthButtons from "@/components/auth/OAuthButtons";
 import { play } from "@/lib/fx/sound";
 import { vibrate } from "@/lib/fx/haptics";
+
+const MIN_PASSWORD_LENGTH = 8;
 
 function SignupPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") ?? "/";
+  const next = safeNextPath(searchParams.get("next"));
+  const { user, loading: userLoading } = useUser();
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [busy, setBusy] = useState<"none" | "form" | OAuthProvider>("none");
   const [error, setError] = useState<string | null>(null);
-  const [confirmSent, setConfirmSent] = useState(false);
+  const [confirmSentTo, setConfirmSentTo] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!userLoading && user) router.replace(next);
+  }, [userLoading, user, next, router]);
+
+  const fail = (cause: Parameters<typeof authErrorMessage>[0]) => {
+    setError(authErrorMessage(cause));
+    vibrate("fail");
+    play("warn");
+  };
+
+  const callbackUrl = () => `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
-    setLoading(true);
+    if (busy !== "none") return;
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      setError(`Das Passwort braucht mindestens ${MIN_PASSWORD_LENGTH} Zeichen.`);
+      return;
+    }
+    setBusy("form");
     setError(null);
     play("tap");
-    const supabase = getSupabaseBrowserClient();
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { display_name: displayName },
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`
+    try {
+      const { data, error: authError } = await getSupabaseBrowserClient().auth.signUp({
+        email: email.trim(),
+        password,
+        options: {
+          data: { display_name: displayName.trim() },
+          emailRedirectTo: callbackUrl()
+        }
+      });
+      if (authError) {
+        fail(authError);
+        return;
       }
-    });
-    setLoading(false);
-    if (error) {
-      setError(error.message);
-      vibrate("fail");
-      play("warn");
-      return;
+      // Supabase verschleiert bestehende Accounts: User ohne Identitäten = E-Mail schon vergeben.
+      if (data.user && !data.session && data.user.identities?.length === 0) {
+        fail("user_already_exists");
+        return;
+      }
+      if (data.user && !data.session) {
+        setConfirmSentTo(email.trim());
+        play("bell");
+        return;
+      }
+      play("win");
+      vibrate("success");
+      router.replace(next);
+      router.refresh();
+    } catch (cause) {
+      fail(cause as Error);
+    } finally {
+      setBusy("none");
     }
-    if (data.user && !data.session) {
-      setConfirmSent(true);
-      play("bell");
-      return;
-    }
-    play("win");
-    vibrate("success");
-    router.push(next);
-    router.refresh();
   };
 
-  return (
-    <div className="w-full">
-      <Link
-        href="/"
-        className="mb-4 inline-flex items-center gap-2 text-sm font-black text-malt/65 hover:text-malt dark:text-nightMuted"
-      >
-        <ArrowLeft className="size-4" />
-        Zurück
-      </Link>
-      <div className="coaster p-6 phase-enter">
-        <h1 className="text-3xl font-semibold text-malt dark:text-nightText">Account erstellen</h1>
-        <p className="mt-1 text-sm font-bold text-malt/65 dark:text-nightMuted">
-          Behalte deine Bierwiegen-Statistiken über alle Spiele.
-        </p>
+  const oauth = async (provider: OAuthProvider) => {
+    setBusy(provider);
+    setError(null);
+    play("click");
+    try {
+      const { error: authError } = await getSupabaseBrowserClient().auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: callbackUrl() }
+      });
+      if (authError) {
+        setBusy("none");
+        fail(authError);
+      }
+    } catch (cause) {
+      setBusy("none");
+      fail(cause as Error);
+    }
+  };
 
-        {confirmSent ? (
-          <div className="mt-6 rounded-2xl border-2 border-emerald bg-emerald/10 p-4 text-malt dark:text-nightText">
-            <div className="text-base font-black">Bestätige deine E-Mail</div>
-            <p className="mt-1 text-sm font-bold opacity-80">
-              Wir haben dir einen Link an <strong>{email}</strong> geschickt. Nach dem Klick bist du eingeloggt.
-            </p>
-          </div>
-        ) : (
-          <form onSubmit={submit} className="mt-5 grid gap-3">
-            <input
-              required
-              placeholder="Anzeigename"
-              value={displayName}
-              onChange={(event) => setDisplayName(event.target.value)}
-              className="tap-input h-14 px-4 text-lg font-black"
-            />
-            <input
-              type="email"
-              required
-              autoComplete="email"
-              placeholder="E-Mail"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              className="tap-input h-14 px-4 text-lg font-black"
-            />
-            <input
-              type="password"
-              required
-              minLength={6}
-              autoComplete="new-password"
-              placeholder="Passwort (min. 6 Zeichen)"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              className="tap-input h-14 px-4 text-lg font-black"
-            />
-            <button
-              type="submit"
-              disabled={loading}
-              className="brass-pill mt-1 inline-flex h-14 items-center justify-center gap-3 rounded-2xl px-6 text-lg font-medium disabled:opacity-50"
-            >
-              {loading ? "Erstelle..." : "Account erstellen"}
-              <ArrowRight className="size-5" />
-            </button>
-          </form>
-        )}
-
-        {error && (
-          <div className="mt-4 rounded-2xl border-2 border-wine/40 bg-dangerSoft px-4 py-3 text-sm font-bold text-wine">
-            {error}
-          </div>
-        )}
-
-        <div className="mt-6 text-center text-sm font-bold text-malt/65 dark:text-nightMuted">
-          Schon einen Account?{" "}
-          <Link
-            href={`/login?next=${encodeURIComponent(next)}`}
-            className="underline decoration-amberBeer/60 underline-offset-4"
-          >
-            Einloggen
+  if (confirmSentTo) {
+    return (
+      <AuthCard title="Fast geschafft" subtitle="Nur noch kurz die E-Mail bestätigen.">
+        <div className="mt-5 grid gap-4">
+          <AuthNotice tone="success" title="Bestätigungs-Mail verschickt">
+            Wir haben einen Link an <strong className="break-all">{confirmSentTo}</strong> geschickt. Nach dem Klick bist
+            du eingeloggt. Nichts angekommen? Schau auch im Spam-Ordner nach.
+          </AuthNotice>
+          <Link href={`/login?next=${encodeURIComponent(next)}`} className={`${authLinkClass} justify-self-center text-sm`}>
+            Zum Login
           </Link>
         </div>
-      </div>
-    </div>
+      </AuthCard>
+    );
+  }
+
+  const tooShort = password.length > 0 && password.length < MIN_PASSWORD_LENGTH;
+
+  return (
+    <>
+      <AuthCard title="Account erstellen" subtitle="Behalte deine Bierwiegen-Statistiken über alle Spiele.">
+        <form onSubmit={submit} className="mt-5 grid gap-4">
+          <AuthField
+            label="Anzeigename"
+            name="nickname"
+            autoComplete="nickname"
+            required
+            maxLength={30}
+            placeholder="So sehen dich deine Mitspieler"
+            value={displayName}
+            onChange={(event) => setDisplayName(event.target.value)}
+          />
+          <AuthField
+            label="E-Mail"
+            type="email"
+            name="email"
+            inputMode="email"
+            autoComplete="email"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            required
+            placeholder="du@beispiel.de"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
+          <PasswordField
+            label="Passwort"
+            name="new-password"
+            autoComplete="new-password"
+            required
+            minLength={MIN_PASSWORD_LENGTH}
+            placeholder={`Mindestens ${MIN_PASSWORD_LENGTH} Zeichen`}
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            hint={
+              tooShort
+                ? `Noch ${MIN_PASSWORD_LENGTH - password.length} Zeichen bis zum Minimum.`
+                : `Mindestens ${MIN_PASSWORD_LENGTH} Zeichen – je länger, desto besser.`
+            }
+          />
+
+          {error && <AuthNotice tone="error">{error}</AuthNotice>}
+
+          <SubmitButton loading={busy === "form"} disabled={busy !== "none"} icon={<ArrowRight className="size-5" />}>
+            {busy === "form" ? "Erstelle Account…" : "Account erstellen"}
+          </SubmitButton>
+        </form>
+
+        <OAuthButtons
+          onSelect={oauth}
+          busyProvider={busy === "google" || busy === "apple" ? busy : null}
+          disabled={busy !== "none"}
+        />
+      </AuthCard>
+
+      <p className="mt-5 text-center text-sm font-medium text-malt/70 dark:text-nightMuted">
+        Schon einen Account?{" "}
+        <Link href={`/login?next=${encodeURIComponent(next)}`} className={authLinkClass}>
+          Einloggen
+        </Link>
+      </p>
+    </>
   );
 }
 
