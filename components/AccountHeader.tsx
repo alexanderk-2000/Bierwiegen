@@ -9,8 +9,6 @@ import {
   LogIn,
   LogOut,
   Mail,
-  Moon,
-  Sun,
   User as UserIcon,
   Volume2,
   VolumeX
@@ -21,36 +19,18 @@ import { useUser } from "@/lib/auth/use-user";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { getSoundEnabled, setSoundEnabled, play } from "@/lib/fx/sound";
 import { vibrate } from "@/lib/fx/haptics";
-
-const THEME_KEY = "bw-theme";
-
-function applyThemeClass(theme: "light" | "dark") {
-  if (typeof document === "undefined") return;
-  document.documentElement.classList.toggle("dark", theme === "dark");
-}
-
-function readTheme(): "light" | "dark" {
-  if (typeof window === "undefined") return "light";
-  try {
-    const stored = window.localStorage.getItem(THEME_KEY);
-    if (stored === "dark" || stored === "light") return stored;
-  } catch {
-    // ignore
-  }
-  return window.matchMedia?.("(prefers-color-scheme: dark)")?.matches ? "dark" : "light";
-}
+import { applyTheme, readTheme } from "@/lib/theme";
+import ThemeToggle, { iconButtonClass } from "@/components/ThemeToggle";
 
 export default function AccountHeader() {
   const { user, loading } = useUser();
   const pathname = usePathname();
   const [pendingInvites, setPendingInvites] = useState(0);
-  const [theme, setTheme] = useState<"light" | "dark">("light");
   const [sound, setSound] = useState(true);
 
   useEffect(() => {
-    const t = readTheme();
-    setTheme(t);
-    applyThemeClass(t);
+    // Theme wird bereits vom Inline-Script im <head> gesetzt — hier nur absichern.
+    applyTheme(readTheme());
     setSound(getSoundEnabled());
   }, []);
 
@@ -65,21 +45,11 @@ export default function AccountHeader() {
       .select("id", { count: "exact", head: true })
       .eq("invited_user_id", user.id)
       .eq("status", "pending")
-      .then(({ count }) => setPendingInvites(count ?? 0));
+      .then(
+        ({ count }) => setPendingInvites(count ?? 0),
+        () => setPendingInvites(0)
+      );
   }, [user]);
-
-  const toggleTheme = () => {
-    const next = theme === "dark" ? "light" : "dark";
-    setTheme(next);
-    applyThemeClass(next);
-    try {
-      window.localStorage.setItem(THEME_KEY, next);
-    } catch {
-      // ignore
-    }
-    play("click");
-    vibrate("tap");
-  };
 
   const toggleSound = () => {
     const next = !sound;
@@ -91,9 +61,12 @@ export default function AccountHeader() {
 
   const logout = async () => {
     play("click");
-    const supabase = getSupabaseBrowserClient();
-    await supabase.auth.signOut();
-    window.location.href = "/";
+    try {
+      // scope "local": nur dieses Gerät abmelden, funktioniert auch offline.
+      await getSupabaseBrowserClient().auth.signOut({ scope: "local" });
+    } finally {
+      window.location.href = "/";
+    }
   };
 
   const NavLink = ({
@@ -112,17 +85,20 @@ export default function AccountHeader() {
       <Link
         href={href}
         onClick={() => play("tap")}
+        aria-label={badge ? `${label} (${badge} offen)` : label}
+        aria-current={active ? "page" : undefined}
+        title={label}
         className={clsx(
-          "relative inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-black transition active:scale-95",
+          "relative inline-flex h-10 min-w-10 shrink-0 items-center justify-center gap-2 rounded-full px-3 text-sm font-semibold active:scale-95",
           active
             ? "bg-orange text-white"
             : "bg-white/55 text-malt hover:bg-white/85 dark:bg-nightSurface2/70 dark:text-nightText dark:hover:bg-nightSurface2"
         )}
       >
-        <span className="size-4">{icon}</span>
+        <span className="size-4 [&>svg]:size-4">{icon}</span>
         <span className="hidden sm:inline">{label}</span>
         {badge !== undefined && badge > 0 && (
-          <span className="ml-1 inline-flex size-5 items-center justify-center rounded-full bg-wine text-[0.65rem] font-black text-white shadow">
+          <span className="absolute -right-1 -top-1 inline-flex size-5 items-center justify-center rounded-full bg-wine text-[0.65rem] font-black text-white shadow ring-2 ring-foam dark:ring-nightBg sm:static sm:ring-0">
             {badge}
           </span>
         )}
@@ -133,10 +109,10 @@ export default function AccountHeader() {
   return (
     <header className="sticky top-0 z-40 isolate">
       {/* Brass-Linie ganz oben */}
-      <div className="h-[3px] w-full bg-[var(--bar-rim)] opacity-90" />
+      <div className="h-[3px] w-full bg-[var(--bar-rim)]" />
       <div
         className={clsx(
-          "border-b border-white/40 bg-foam/85 shadow-sm backdrop-blur-xl",
+          "border-b border-black/5 bg-foam/85 pt-[env(safe-area-inset-top)] shadow-sm backdrop-blur-xl",
           "dark:border-nightBorder dark:bg-nightBg/85"
         )}
       >
@@ -144,7 +120,8 @@ export default function AccountHeader() {
           <Link
             href="/"
             onClick={() => play("tap")}
-            className="group inline-flex items-center gap-2.5 text-lg font-black text-malt dark:text-white"
+            aria-label="Bierwiegen – Startseite"
+            className="group inline-flex shrink-0 items-center gap-2.5 text-lg font-black text-malt dark:text-white"
           >
             <span className="grid size-10 place-items-center rounded-full bg-orange text-white shadow-md">
               <Beer className="size-5" />
@@ -155,10 +132,10 @@ export default function AccountHeader() {
               </span>
               <span className="text-xl font-semibold text-malt dark:text-nightText">Bierwiegen</span>
             </span>
-            <span className="text-xl font-semibold text-malt dark:text-nightText sm:hidden">Bierwiegen</span>
+            {!user && <span className="text-xl font-semibold text-malt dark:text-nightText sm:hidden">Bierwiegen</span>}
           </Link>
 
-          <nav className="flex items-center gap-1.5">
+          <nav aria-label="Hauptnavigation" className="flex min-w-0 items-center gap-1 sm:gap-1.5">
             <NavLink href="/" icon={<Home />} label="Start" />
             {user && <NavLink href="/games" icon={<History />} label="Spiele" />}
             {user && <NavLink href="/invitations" icon={<Mail />} label="Einladungen" badge={pendingInvites} />}
@@ -168,18 +145,11 @@ export default function AccountHeader() {
               onClick={toggleSound}
               title={sound ? "Sound aus" : "Sound an"}
               aria-label={sound ? "Sound stummschalten" : "Sound aktivieren"}
-              className="grid size-10 place-items-center rounded-full border border-malt/15 bg-white/60 text-malt shadow-sm transition hover:bg-white active:scale-95 dark:border-nightBorder dark:bg-nightSurface2/60 dark:text-nightMuted"
+              className={iconButtonClass}
             >
               {sound ? <Volume2 className="size-4" /> : <VolumeX className="size-4 opacity-60" />}
             </button>
-            <button
-              onClick={toggleTheme}
-              title={theme === "dark" ? "Hellmodus" : "Nachtmodus"}
-              aria-label="Theme wechseln"
-              className="grid size-10 place-items-center rounded-full border border-malt/15 bg-white/60 text-malt shadow-sm transition hover:bg-white active:scale-95 dark:border-nightBorder dark:bg-nightSurface2/60 dark:text-nightMuted"
-            >
-              {theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
-            </button>
+            <ThemeToggle />
 
             {!loading && !user && (
               <Link
@@ -196,7 +166,7 @@ export default function AccountHeader() {
                 onClick={logout}
                 title="Logout"
                 aria-label="Abmelden"
-                className="grid size-10 place-items-center rounded-full border border-malt/15 bg-white/60 text-malt shadow-sm transition hover:bg-white active:scale-95 dark:border-nightBorder dark:bg-nightSurface2/60 dark:text-nightText"
+                className={iconButtonClass}
               >
                 <LogOut className="size-4" />
               </button>

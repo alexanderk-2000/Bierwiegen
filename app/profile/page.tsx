@@ -10,6 +10,7 @@ import {
   Edit3,
   Flame,
   History,
+  KeyRound,
   Medal,
   Save,
   Scale,
@@ -44,6 +45,8 @@ export default function ProfilePage() {
   const router = useRouter();
   const [displayName, setDisplayName] = useState("");
   const [editing, setEditing] = useState(false);
+  const [savedName, setSavedName] = useState("");
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [overall, setOverall] = useState<OverallStats | null>(null);
   const [beerStats, setBeerStats] = useState<BeerStats[]>([]);
   const [bottleStats, setBottleStats] = useState<BottleSizeStats[]>([]);
@@ -51,34 +54,58 @@ export default function ProfilePage() {
   const [tab, setTab] = useState<Tab>("stats");
 
   useEffect(() => {
-    if (!loading && !user) router.push("/login?next=/profile");
+    if (!loading && !user) router.replace("/login?next=/profile");
   }, [loading, user, router]);
 
   useEffect(() => {
     if (!user) return;
+    let active = true;
     (async () => {
-      const profile = await ensureProfile(user.id, {
-        display_name: user.user_metadata?.display_name ?? user.email?.split("@")[0] ?? "Spieler"
-      });
-      setDisplayName(profile.display_name);
-      const [o, b, s, h] = await Promise.all([
-        getOverallStats(user.id),
-        getBeerStats(user.id),
-        getBottleSizeStats(user.id),
-        getGameHistory(user.id)
-      ]);
-      setOverall(o);
-      setBeerStats(b);
-      setBottleStats(s);
-      setHistory(h);
+      try {
+        // Profil und Statistiken parallel laden statt nacheinander.
+        const [profile, o, b, s, h] = await Promise.all([
+          ensureProfile(user.id, {
+            display_name: user.user_metadata?.display_name ?? user.email?.split("@")[0] ?? "Spieler"
+          }),
+          getOverallStats(user.id),
+          getBeerStats(user.id),
+          getBottleSizeStats(user.id),
+          getGameHistory(user.id)
+        ]);
+        if (!active) return;
+        setDisplayName(profile.display_name);
+        setSavedName(profile.display_name);
+        setOverall(o);
+        setBeerStats(b);
+        setBottleStats(s);
+        setHistory(h);
+      } catch {
+        if (active) setLoadError("Dein Profil konnte nicht vollständig geladen werden. Prüfe deine Verbindung.");
+      }
     })();
+    return () => {
+      active = false;
+    };
   }, [user]);
 
   const saveName = async () => {
-    if (!user || !displayName.trim()) return;
-    await updateMyProfile(user.id, { display_name: displayName.trim() });
+    const name = displayName.trim();
+    if (!user || !name) return;
+    try {
+      await updateMyProfile(user.id, { display_name: name });
+      setDisplayName(name);
+      setSavedName(name);
+      setEditing(false);
+      setLoadError(null);
+      play("bell");
+    } catch {
+      setLoadError("Der Name konnte nicht gespeichert werden.");
+    }
+  };
+
+  const cancelEdit = () => {
+    setDisplayName(savedName);
     setEditing(false);
-    play("bell");
   };
 
   const awards = useMemo(() => {
@@ -135,45 +162,70 @@ export default function ProfilePage() {
     return out;
   }, [overall, beerStats]);
 
-  if (loading || !user) return <main className="h-dvh bg-[var(--bg-page)]" />;
+  if (loading || !user) return <main className="h-dvh" aria-busy="true" />;
 
   return (
-    <div className="flex h-dvh flex-col">
+    <div className="flex min-h-dvh flex-col lg:h-dvh">
       <AccountHeader />
-      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-3 overflow-hidden px-3 py-3 sm:px-5">
+      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-3 lg:overflow-hidden px-3 py-3 sm:px-5">
         {/* Profile Hero */}
         <section className="coaster flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
           <div className="flex items-center gap-3">
             <div className="grid size-14 place-items-center rounded-full bg-orange text-2xl font-bold text-white shadow-md">
-              {displayName.slice(0, 1).toUpperCase()}
+              {displayName.slice(0, 1).toUpperCase() || "?"}
             </div>
             <div>
               {editing ? (
-                <div className="flex items-center gap-2">
+                <form
+                  className="flex items-center gap-2"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    void saveName();
+                  }}
+                >
                   <input
                     value={displayName}
                     onChange={(event) => setDisplayName(event.target.value)}
-                    className="tap-input h-10 px-3 text-lg font-black"
+                    onKeyDown={(event) => {
+                      if (event.key === "Escape") cancelEdit();
+                    }}
+                    autoFocus
+                    maxLength={30}
+                    aria-label="Anzeigename"
+                    className="tap-input h-10 w-full min-w-0 max-w-56 px-3 text-lg font-black"
                   />
                   <button
-                    onClick={saveName}
-                    className="grid size-10 place-items-center rounded-full bg-orange text-white active:scale-95"
+                    type="submit"
+                    aria-label="Namen speichern"
+                    title="Speichern"
+                    className="grid size-10 shrink-0 place-items-center rounded-full bg-orange text-white active:scale-95"
                   >
                     <Save className="size-4" />
                   </button>
-                </div>
+                </form>
               ) : (
                 <div className="flex items-center gap-2">
                   <h1 className="text-2xl font-semibold text-malt dark:text-nightText sm:text-3xl">{displayName}</h1>
                   <button
                     onClick={() => setEditing(true)}
-                    className="grid size-7 place-items-center rounded-full bg-cream text-malt active:scale-95 dark:bg-nightSurface2 dark:text-nightText"
+                    aria-label="Anzeigenamen bearbeiten"
+                    title="Namen bearbeiten"
+                    className="grid size-9 place-items-center rounded-full bg-cream text-malt active:scale-95 dark:bg-nightSurface2 dark:text-nightText"
                   >
                     <Edit3 className="size-3.5" />
                   </button>
                 </div>
               )}
-              <div className="text-xs font-bold text-malt/65 dark:text-nightMuted">{user.email}</div>
+              <div className="flex flex-wrap items-center gap-x-3 text-xs font-bold text-malt/65 dark:text-nightMuted">
+                <span className="break-all">{user.email}</span>
+                <Link
+                  href="/update-password"
+                  className="inline-flex items-center gap-1 underline decoration-orange/50 underline-offset-4 hover:text-malt dark:hover:text-nightText"
+                >
+                  <KeyRound className="size-3" />
+                  Passwort ändern
+                </Link>
+              </div>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -192,6 +244,12 @@ export default function ProfilePage() {
             </Link>
           </div>
         </section>
+
+        {loadError && (
+          <div role="alert" className="rounded-xl border border-wine/30 bg-dangerSoft px-3 py-2 text-sm font-bold text-wine dark:border-[#ff8a7a]/25 dark:bg-[#3a1814] dark:text-[#ffb4a8]">
+            {loadError}
+          </div>
+        )}
 
         <section className="flex-1 overflow-hidden phase-enter">
           {tab === "stats" && <StatsTab overall={overall} awards={awards} />}
@@ -239,7 +297,7 @@ function StatsTab({
 }) {
   return (
     <div className="grid h-full grid-cols-1 gap-3 overflow-hidden lg:grid-cols-[2fr_1fr]">
-      <div className="scroll-vintage grid h-full grid-cols-2 gap-2 overflow-y-auto pr-1 sm:grid-cols-3 md:grid-cols-4">
+      <div className="scroll-vintage grid h-full auto-rows-min grid-cols-2 content-start gap-2 overflow-y-auto pr-1 sm:grid-cols-3 md:grid-cols-4">
         <StatCard label="Spiele" value={overall?.games_played ?? 0} icon={<History className="size-3.5" />} />
         <StatCard label="Gewonnen" value={overall?.games_won ?? 0} accent="hop" icon={<Trophy className="size-3.5" />} />
         <StatCard label="Verloren" value={overall?.games_lost ?? 0} accent="danger" icon={<Flame className="size-3.5" />} />
@@ -268,7 +326,7 @@ function StatsTab({
             {awards.map((award) => (
               <div
                 key={award.label}
-                className="flex items-center gap-2 rounded-xl border border-malt/8 bg-cream/80 px-2.5 py-2 shadow-sm dark:border-nightBorder dark:bg-nightSurface2/80"
+                className="flex items-center gap-2 rounded-xl border border-malt/10 bg-cream/80 px-2.5 py-2 shadow-sm dark:border-nightBorder dark:bg-nightSurface2/80"
               >
                 <div
                   className={`grid size-8 shrink-0 place-items-center rounded-full ${
@@ -440,11 +498,11 @@ function StatCard({
 }) {
   return (
     <div
-      className={`relative flex flex-col justify-between overflow-hidden rounded-xl px-3 py-2.5 shadow-sm ${
+      className={`relative flex min-h-[4.5rem] flex-col justify-between gap-1 overflow-hidden rounded-xl px-3 py-2.5 shadow-sm ${
         accent === "hop"
           ? "border-2 border-emerald/30 bg-emerald/10"
           : accent === "danger"
-          ? "border-2 border-wine/30 bg-dangerSoft"
+          ? "border-2 border-wine/30 bg-dangerSoft dark:border-[#ff8a7a]/25 dark:bg-[#3a1814]"
           : "border border-malt/10 bg-foam/85 dark:border-nightBorder dark:bg-nightSurface/85"
       }`}
     >

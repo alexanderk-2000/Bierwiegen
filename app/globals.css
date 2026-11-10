@@ -16,6 +16,7 @@
   --bg-solid: #f7f4f0;
   --color-text: #1a1510;
   --focus-ring: rgba(240, 78, 27, 0.4);
+  --bar-rim: #f04e1b;
 }
 
 .dark {
@@ -39,11 +40,7 @@ body {
   background: var(--bg-solid);
 }
 
-.dark html,
-.dark body,
-html.dark,
-body.dark,
-.dark {
+html.dark {
   background: #0e0b07;
 }
 
@@ -136,6 +133,21 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .dark .scrollbar-soft {
   scrollbar-color: rgba(240, 78, 27, 0.25) transparent;
+}
+
+/* Gefahren-Farben im Nachtmodus: Weinrot auf Dunkelbraun ist unlesbar,
+   das helle Rosa blendet. Zentral umgemappt statt an 30 Stellen einzeln. */
+.dark .text-wine {
+  color: #ff9c8f;
+}
+
+.dark .bg-dangerSoft {
+  background-color: #3a1814;
+}
+
+.dark .bg-dangerSoft.text-red-700,
+.dark .bg-dangerSoft .text-red-700 {
+  color: #ffb4a8;
 }
 
 /* =========================================================
@@ -334,11 +346,29 @@ input[type="number"]::-webkit-inner-spin-button {
   100% { transform: translateY(0); opacity: 1; }
 }
 
-/* Standalone-Mode: kein Selecten */
+/* Standalone-Mode: kein Selecten — Eingabefelder bleiben bedienbar */
 @media (display-mode: standalone) {
   body {
     user-select: none;
   }
+  input,
+  textarea,
+  [contenteditable="true"] {
+    user-select: text;
+  }
+}
+
+/* Autofill soll das Karten-Design nicht mit Browser-Gelb überschreiben */
+.tap-input:-webkit-autofill,
+.tap-input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--color-text);
+  box-shadow: 0 0 0 1000px #fff7ef inset;
+  caret-color: var(--color-text);
+}
+
+.dark .tap-input:-webkit-autofill,
+.dark .tap-input:-webkit-autofill:focus {
+  box-shadow: 0 0 0 1000px #2a2018 inset;
 }
 
 /* Reduced Motion Override */

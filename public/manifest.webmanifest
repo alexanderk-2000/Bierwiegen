@@ -3,9 +3,11 @@
   "short_name": "Bierwiegen",
   "description": "Das Trinkspiel für Waage, Zielgewicht und schlechte Entscheidungen.",
   "start_url": "/",
+  "scope": "/",
+  "lang": "de",
   "display": "standalone",
-  "background_color": "#fff7e8",
-  "theme_color": "#f6b73c",
+  "background_color": "#f7f4f0",
+  "theme_color": "#f04e1b",
   "orientation": "any",
   "icons": [
     {

@@ -32,7 +32,11 @@ const config: Config = {
         wine: "#7a1e2e",
         glassEdge: "rgba(255,255,255,0.55)"
       },
+      spacing: {
+        13: "3.25rem"
+      },
       boxShadow: {
+        coaster: "0 2px 6px rgba(0,0,0,0.08), 0 10px 26px rgba(0,0,0,0.10)",
         board: "0 22px 60px rgba(67, 43, 29, 0.13), 0 2px 10px rgba(67, 43, 29, 0.08)",
         surface: "0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06)",
         surfaceDark: "0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.25)",

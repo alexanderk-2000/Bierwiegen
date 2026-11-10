@@ -53,10 +53,10 @@ export default function NewGamePage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!loading && !user) router.push("/login?next=/games/new");
+    if (!loading && !user) router.replace("/login?next=/games/new");
   }, [loading, user, router]);
 
-  if (loading || !user) return <main className="h-dvh bg-[var(--bg-page)]" />;
+  if (loading || !user) return <main className="h-dvh" aria-busy="true" />;
 
   const submit = async () => {
     if (!gameName.trim()) {
@@ -113,9 +113,9 @@ export default function NewGamePage() {
   };
 
   return (
-    <div className="flex h-dvh flex-col">
+    <div className="flex min-h-dvh flex-col md:h-dvh">
       <AccountHeader />
-      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-3 overflow-hidden px-3 py-3 sm:px-5">
+      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-3 md:overflow-hidden px-3 py-3 sm:px-5">
         <section className="coaster px-4 py-3 sm:px-6 sm:py-4">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
@@ -181,7 +181,7 @@ export default function NewGamePage() {
                   placeholder="Eigene Marke"
                   className="tap-input h-10 w-full px-3 text-sm font-black"
                 />
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-[3fr_2fr] gap-2">
                   <div>
                     <div className="mb-1 text-[0.6rem] font-black uppercase tracking-wider text-malt/55 dark:text-nightMuted">
                       Flasche
@@ -194,7 +194,7 @@ export default function NewGamePage() {
                             setHostBottle(size);
                             play("tap");
                           }}
-                          className={`flex-1 rounded-xl px-2 py-2 text-sm font-medium transition active:scale-95 ${
+                          className={`flex-1 whitespace-nowrap rounded-xl px-1.5 py-2 text-sm font-medium transition active:scale-95 ${
                             hostBottle === size
                               ? "bg-orange text-white"
                               : "bg-cream/70 text-malt dark:bg-nightSurface2/70 dark:text-nightText"
@@ -255,7 +255,7 @@ export default function NewGamePage() {
               </button>
             </div>
             {guests.length === 0 ? (
-              <div className="flex flex-1 items-center justify-center rounded-xl border-2 border-dashed border-malt/15 bg-foam/40 p-3 text-center text-xs font-bold text-malt/55 dark:border-nightBorder dark:bg-nightBg/40">
+              <div className="flex flex-1 items-center justify-center rounded-xl border-2 border-dashed border-malt/15 bg-foam/40 p-3 text-center text-xs font-bold text-malt/55 dark:text-nightMuted dark:border-nightBorder dark:bg-nightBg/40">
                 Account-Spieler kannst du in der Lobby einladen, Gäste hier hinzufügen.
               </div>
             ) : (

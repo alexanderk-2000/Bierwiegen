@@ -38,11 +38,21 @@ export async function createOnlineGame(params: {
 
 export async function listMyGames(userId: string): Promise<GameRow[]> {
   const supabase = getSupabaseBrowserClient();
-  // Spiele bei denen ich Host oder Player bin
+  // Spiele, bei denen ich Host bin ODER als Spieler beigetreten bin
+  const { data: memberships, error: membershipError } = await supabase
+    .from("game_players")
+    .select("game_id")
+    .eq("user_id", userId);
+  if (membershipError) throw membershipError;
+  const joinedIds = Array.from(new Set((memberships ?? []).map((row) => row.game_id)));
+  const filter =
+    joinedIds.length > 0
+      ? `host_user_id.eq.${userId},id.in.(${joinedIds.join(",")})`
+      : `host_user_id.eq.${userId}`;
   const { data, error } = await supabase
     .from("games")
     .select("*")
-    .or(`host_user_id.eq.${userId}`)
+    .or(filter)
     .order("updated_at", { ascending: false });
   if (error) throw error;
   return data ?? [];

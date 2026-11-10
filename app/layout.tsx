@@ -1,8 +1,13 @@
 import type { Metadata, Viewport } from "next";
+import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
+import { THEME_INIT_SCRIPT } from "@/lib/theme";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Bierwiegen — Premium Trinkspiel",
+  title: {
+    default: "Bierwiegen — Premium Trinkspiel",
+    template: "%s · Bierwiegen"
+  },
   description:
     "Das Trinkspiel für Waage, Zielgewicht und schlechte Entscheidungen. Premium Bier-Bar — online & offline.",
   manifest: "/manifest.webmanifest",
@@ -18,7 +23,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#c8932b",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f7f4f0" },
+    { media: "(prefers-color-scheme: dark)", color: "#14100a" }
+  ],
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -27,8 +35,15 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="de">
-      <body className="relative">{children}</body>
+    // suppressHydrationWarning: das Inline-Script setzt die .dark-Klasse vor der Hydration.
+    <html lang="de" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
+      <body className="relative">
+        {children}
+        <ServiceWorkerRegistration />
+      </body>
     </html>
   );
 }
